@@ -1,0 +1,8 @@
+Corpus 22371 reports, 1881 duplicates in 1275 groups, 520 queries from the newest 30% of groups
+BM25 index built in 2.7s
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 5536.36it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Corpus embedded in 24.4s
+bm25_only         recall@1=0.2846  recall@5=0.4442  recall@10=0.5154  mrr=0.3639  map=0.2952  mean_ms_per_query=0.99
+bm25_plus_sbert   recall@1=0.3038  recall@5=0.5019  recall@10=0.5712  mrr=0.396  map=0.3168  mean_ms_per_query=8.8
+Phase-1 ceiling (duplicate within top 100): 0.7327; target Recall@5 0.8: NOT met

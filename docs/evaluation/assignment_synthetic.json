@@ -1,0 +1,69 @@
+{
+  "trained_at": "2026-11-16T22:31:33+00:00",
+  "dataset": "synthetic (pipeline check only)",
+  "split": "chronological 80/20; newest 10% of train held out for model selection",
+  "min_bugs_per_developer": 20,
+  "training": {
+    "samples": 2880,
+    "developers": 18,
+    "vocabulary": 308,
+    "validation_samples": 320,
+    "validation": {
+      "top1": 0.5437,
+      "top3": 0.9156,
+      "top5": 0.9375
+    },
+    "device": "cuda"
+  },
+  "epochs": [
+    {
+      "epoch": 1,
+      "loss": 2.8102,
+      "top1": 0.2,
+      "top3": 0.3562,
+      "top5": 0.5562
+    },
+    {
+      "epoch": 2,
+      "loss": 2.6673,
+      "top1": 0.4313,
+      "top3": 0.5781,
+      "top5": 0.65
+    },
+    {
+      "epoch": 3,
+      "loss": 1.9827,
+      "top1": 0.5437,
+      "top3": 0.9156,
+      "top5": 0.9375
+    },
+    {
+      "epoch": 4,
+      "loss": 1.5029,
+      "top1": 0.5219,
+      "top3": 0.9219,
+      "top5": 0.9406
+    }
+  ],
+  "test": {
+    "evaluated": 800,
+    "skipped_unseen_developers": 0,
+    "developers": 18,
+    "top1": 0.485,
+    "top3": 0.8962,
+    "top5": 0.9287,
+    "mnr_model": 1.466,
+    "mnr_random_measured": 8.626,
+    "mnr_random_expected": 8.5,
+    "mnr_reduction_vs_random": 0.83,
+    "mean_inference_ms_per_report": 0.407
+  },
+  "frequency_baseline": {
+    "top1": 0.11,
+    "top3": 0.2762,
+    "top5": 0.44,
+    "mnr": 6.451
+  },
+  "target_mnr_reduction": 0.2,
+  "target_met": true
+}

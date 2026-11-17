@@ -1,0 +1,151 @@
+{
+  "name": "ai-bug-tracker",
+  "displayName": "AI Bug Tracker",
+  "description": "Report, triage and track bugs inside VS Code, with live duplicate detection, automatic severity and developer recommendations.",
+  "version": "1.0.0",
+  "publisher": "capstone-bugtracker",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "bugTracker",
+          "title": "Bug Tracker",
+          "icon": "media/bug.svg"
+        }
+      ]
+    },
+    "views": {
+      "bugTracker": [
+        {
+          "id": "bugTracker.bugs",
+          "name": "Bugs"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "bugTracker.bugs",
+        "contents": "Sign in to see the bugs of your projects.\n[Sign in or register](command:bugTracker.open)",
+        "when": "!bugTracker.signedIn"
+      },
+      {
+        "view": "bugTracker.bugs",
+        "contents": "You are not a member of any project yet.\n[Open Bug Tracker](command:bugTracker.open)",
+        "when": "bugTracker.signedIn && !bugTracker.hasProject"
+      }
+    ],
+    "commands": [
+      {
+        "command": "bugTracker.open",
+        "title": "Open Bug Tracker",
+        "category": "Bug Tracker",
+        "icon": "$(bug)"
+      },
+      {
+        "command": "bugTracker.reportBug",
+        "title": "Report a Bug",
+        "category": "Bug Tracker",
+        "icon": "$(add)"
+      },
+      {
+        "command": "bugTracker.refresh",
+        "title": "Refresh",
+        "category": "Bug Tracker",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "bugTracker.selectProject",
+        "title": "Select Project",
+        "category": "Bug Tracker",
+        "icon": "$(project)"
+      },
+      {
+        "command": "bugTracker.openNotifications",
+        "title": "Show Notifications",
+        "category": "Bug Tracker",
+        "icon": "$(bell)"
+      },
+      {
+        "command": "bugTracker.openDashboard",
+        "title": "Open Project Dashboard",
+        "category": "Bug Tracker",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "bugTracker.signOut",
+        "title": "Sign Out",
+        "category": "Bug Tracker"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "bugTracker.reportBug",
+          "when": "view == bugTracker.bugs && bugTracker.hasProject",
+          "group": "navigation@1"
+        },
+        {
+          "command": "bugTracker.refresh",
+          "when": "view == bugTracker.bugs && bugTracker.signedIn",
+          "group": "navigation@2"
+        },
+        {
+          "command": "bugTracker.selectProject",
+          "when": "view == bugTracker.bugs && bugTracker.signedIn",
+          "group": "navigation@3"
+        },
+        {
+          "command": "bugTracker.openDashboard",
+          "when": "view == bugTracker.bugs && bugTracker.hasProject",
+          "group": "navigation@4"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "bugTracker.reportBug",
+        "key": "ctrl+alt+b",
+        "mac": "cmd+alt+b"
+      }
+    ],
+    "configuration": {
+      "title": "AI Bug Tracker",
+      "properties": {
+        "bugTracker.serverUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:8000",
+          "description": "Base URL of the bug tracker backend. Must use https unless the server runs on this machine."
+        },
+        "bugTracker.pollSeconds": {
+          "type": "number",
+          "default": 30,
+          "minimum": 10,
+          "description": "How often the extension checks for new notifications, in seconds."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "package": "vsce package --no-dependencies",
+    "test:host": "tsc -p . && node scripts/test-host.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.0",
+    "typescript": "^5.5.0"
+  }
+}

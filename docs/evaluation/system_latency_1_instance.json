@@ -1,0 +1,70 @@
+{
+  "corpus_size": 1804,
+  "concurrent_reports": 50,
+  "backend_instances": 1,
+  "duplicate_check_sequential": {
+    "n": 30,
+    "median_ms": 23.0,
+    "p95_ms": 34.0,
+    "max_ms": 83.8
+  },
+  "submit_sequential": {
+    "n": 30,
+    "median_ms": 67.8,
+    "p95_ms": 79.1,
+    "max_ms": 79.7
+  },
+  "recommendation_sequential": {
+    "n": 30,
+    "median_ms": 25.7,
+    "p95_ms": 29.9,
+    "max_ms": 154.0
+  },
+  "submit_concurrent": {
+    "n": 150,
+    "median_ms": 1038.0,
+    "p95_ms": 1568.3,
+    "max_ms": 1625.6
+  },
+  "duplicate_check_concurrent": {
+    "n": 150,
+    "median_ms": 465.3,
+    "p95_ms": 713.0,
+    "max_ms": 743.3
+  },
+  "page_bug_list_100_users": {
+    "n": 100,
+    "median_ms": 605.5,
+    "p95_ms": 881.8,
+    "max_ms": 890.9
+  },
+  "page_bug_detail_100_users": {
+    "n": 100,
+    "median_ms": 335.7,
+    "p95_ms": 513.2,
+    "max_ms": 525.0
+  },
+  "page_dashboard_100_users": {
+    "n": 100,
+    "median_ms": 907.3,
+    "p95_ms": 1448.9,
+    "max_ms": 1498.4
+  },
+  "page_keyword_search_100_users": {
+    "n": 100,
+    "median_ms": 354.0,
+    "p95_ms": 550.3,
+    "max_ms": 610.5
+  },
+  "submit_median_change_under_load": "+1431%",
+  "verdicts": {
+    "NFR-02 duplicate check <= 1500 ms (p95, sequential)": true,
+    "NFR-02 submission <= 1500 ms (p95, sequential)": true,
+    "NFR-02 recommendation <= 3000 ms (p95)": true,
+    "NFR-02 submission <= 1500 ms with 50 simultaneous (p95)": false,
+    "NFR-01 pages <= 2000 ms with 100 users (p95)": true,
+    "NFR-03 median within 10% of baseline at 50 simultaneous": false
+  },
+  "measured_at": "2026-11-17T03:23:06+00:00",
+  "server": "http://127.0.0.1:8001"
+}

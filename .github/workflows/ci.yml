@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bugtracker
+          POSTGRES_PASSWORD: bugtracker
+          POSTGRES_DB: bugtracker_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U bugtracker" --health-interval 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements-dev.txt
+      - name: Lint
+        run: ruff check app ml scripts tests
+      - name: Tests on SQLite (coverage must stay at or above 70%, NFR-13)
+        run: pytest
+      - name: Tests on PostgreSQL
+        env:
+          BT_TEST_DATABASE_URL: postgresql+psycopg://bugtracker:bugtracker@localhost:5432/bugtracker_test
+        run: pytest --no-cov
+      - name: Migrations apply and match the models
+        env:
+          BT_DATABASE_URL: postgresql+psycopg://bugtracker:bugtracker@localhost:5432/bugtracker_test
+        run: |
+          alembic upgrade head
+          alembic check
+      - name: OpenAPI document is up to date (DC-05)
+        env:
+          BT_DATABASE_URL: sqlite://
+        run: |
+          python -m app.cli export-openapi /tmp/openapi.json
+          diff /tmp/openapi.json ../docs/openapi.json
+
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - run: npm ci
+      - run: npm run compile
+      - run: npx vsce package --no-dependencies --allow-missing-repository
+
+  # Snyk (Section 1.6.4). Runs only once the SNYK_TOKEN repository secret has been added.
+  snyk:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies, code and secrets
+        if: ${{ env.SNYK_TOKEN != '' }}
+        run: |
+          npm install -g snyk
+          snyk test --file=backend/requirements.txt --package-manager=pip --skip-unresolved
+          snyk test --file=extension/package.json
+          snyk code test

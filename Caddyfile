@@ -1,0 +1,16 @@
+# Caddy obtains and renews the certificate automatically and serves TLS 1.2+ only (NFR-05).
+{$DOMAIN} {
+	tls {
+		protocols tls1.2 tls1.3
+	}
+	handle_path /ntfy/* {
+		reverse_proxy ntfy:80
+	}
+	handle {
+		# Docker's DNS returns every backend container; requests are balanced across them (NFR-08).
+		reverse_proxy backend:8000 {
+			lb_policy least_conn
+			health_uri /health
+		}
+	}
+}

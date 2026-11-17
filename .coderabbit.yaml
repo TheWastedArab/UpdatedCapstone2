@@ -1,0 +1,17 @@
+# CodeRabbit reviews every pull request before a team member approves it (Section 1.6.4).
+language: en-GB
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  path_filters:
+    - "!docs/openapi.json"
+    - "!docs/evaluation/**"
+    - "!extension/package-lock.json"
+  path_instructions:
+    - path: "backend/app/routers/**"
+      instructions: "Every endpoint must check project membership through deps.require_project or deps.require_bug and must write an audit entry for any change (FR-08, NFR-06)."
+    - path: "extension/media/**"
+      instructions: "User-supplied text must be inserted as text nodes, never as HTML (NFR-07). Controls need labels and keyboard access (NFR-12)."
+chat:
+  auto_reply: true

@@ -1,0 +1,8 @@
+src/**
+dev/**
+tsconfig.json
+**/*.map
+node_modules/**
+.vscode/**
+out/test/**
+scripts/**

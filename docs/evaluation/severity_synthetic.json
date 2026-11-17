@@ -1,0 +1,112 @@
+{
+  "trained_at": "2026-11-16T22:30:59+00:00",
+  "dataset": "synthetic (pipeline check only)",
+  "drop_default_severity": false,
+  "rows": 4000,
+  "class_distribution": {
+    "Low": 765,
+    "Medium": 1894,
+    "High": 881,
+    "Critical": 460
+  },
+  "split": "80/20 stratified, seed 42",
+  "cv_folds": 3,
+  "cv_accuracy_by_svm_C": {
+    "0.1": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "0.5": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "1.0": {
+      "mean": 1.0,
+      "std": 0.0
+    }
+  },
+  "selected_svm_C": 0.1,
+  "majority_class_baseline": 0.4735,
+  "member_accuracy": {
+    "svm": 1.0,
+    "random_forest": 1.0,
+    "naive_bayes": 1.0
+  },
+  "fit_seconds": 0.8,
+  "mean_inference_ms_per_report": 0.13,
+  "target_accuracy": 0.85,
+  "target_met": true,
+  "test": {
+    "accuracy": 1.0,
+    "macro": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "weighted": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "per_class": {
+      "Low": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 153
+      },
+      "Medium": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 379
+      },
+      "High": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 176
+      },
+      "Critical": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 92
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "rows_true_cols_predicted": [
+        [
+          153,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          379,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          176,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          92
+        ]
+      ]
+    }
+  }
+}

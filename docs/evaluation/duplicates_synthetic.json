@@ -1,0 +1,31 @@
+{
+  "evaluated_at": "2026-11-16T22:31:22+00:00",
+  "dataset": "synthetic (pipeline check only)",
+  "corpus_size": 3000,
+  "duplicates": 460,
+  "groups": 324,
+  "queries": 460,
+  "phase1_candidates": 50,
+  "phase1_ceiling": 0.8609,
+  "sbert_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "results": {
+    "bm25_only": {
+      "recall@1": 0.3304,
+      "recall@5": 0.4652,
+      "recall@10": 0.5696,
+      "mrr": 0.4047,
+      "map": 0.2662,
+      "mean_ms_per_query": 0.54
+    },
+    "bm25_plus_sbert": {
+      "recall@1": 0.6109,
+      "recall@5": 0.85,
+      "recall@10": 0.8609,
+      "mrr": 0.7129,
+      "map": 0.6525,
+      "mean_ms_per_query": 9.26
+    }
+  },
+  "target_recall@5": 0.8,
+  "target_met": true
+}

@@ -1,0 +1,13 @@
+40525 labelled reports: {'Low': 12744, 'High': 18580, 'Critical': 9201}
+  10-fold CV, SVM C=0.1: 0.6140 +/- 0.0083
+  10-fold CV, SVM C=0.5: 0.6100 +/- 0.0083
+  10-fold CV, SVM C=1.0: 0.5997 +/- 0.0074
+
+Held-out accuracy 0.6157 (majority-class baseline 0.4585, target 0.85)
+macro F1 0.5918, weighted F1 0.6077; members {'svm': 0.6223, 'random_forest': 0.598, 'naive_bayes': 0.5411}
+Confusion matrix (rows = true, columns = predicted): ['Low', 'High', 'Critical']
+  Low      [1987  489   73]
+  High     [ 882 2283  551]
+  Critical [217 903 720]
+
+--drop-default run: report written, model NOT saved (the service needs all four levels).

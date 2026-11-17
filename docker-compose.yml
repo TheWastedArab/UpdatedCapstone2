@@ -1,0 +1,76 @@
+# Deployment: PostgreSQL, the backend, self-hosted ntfy, and Caddy terminating TLS (NFR-05).
+#
+#   cp deploy.env.example deploy.env      # then edit it
+#   docker compose --env-file deploy.env up -d --build
+#   docker compose --env-file deploy.env up -d --scale backend=3     # horizontal scaling (NFR-08)
+#
+# Trained models are read from ./models (mounted read-only). Without them the
+# backend still runs: severity falls back to keyword rules and the base encoder is used.
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bugtracker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy.env}
+      POSTGRES_DB: bugtracker
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bugtracker"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BT_DATABASE_URL: postgresql+psycopg://bugtracker:${POSTGRES_PASSWORD}@db:5432/bugtracker
+      BT_SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in deploy.env}
+      # Keep instances x (pool + overflow) under PostgreSQL's max_connections (100 by default).
+      BT_DB_POOL_SIZE: "10"
+      BT_DB_MAX_OVERFLOW: "10"
+      BT_WORKER_THREADS: "15"
+      BT_EMAIL_BACKEND: ${EMAIL_BACKEND:-console}
+      BT_EMAIL_FROM: ${EMAIL_FROM:-bugtracker@localhost}
+      BT_SMTP_HOST: ${SMTP_HOST:-}
+      BT_SMTP_PORT: ${SMTP_PORT:-587}
+      BT_SMTP_USER: ${SMTP_USER:-}
+      BT_SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      BT_NTFY_URL: http://ntfy:80
+    volumes:
+      - uploads:/data/uploads
+      - ./models:/models:ro
+
+  ntfy:
+    image: binwiederhier/ntfy
+    command: serve
+    restart: unless-stopped
+    environment:
+      NTFY_BASE_URL: https://${DOMAIN:?set DOMAIN in deploy.env}/ntfy
+      # Deny by default; create users and grant topics with `ntfy user add` / `ntfy access`.
+      NTFY_AUTH_DEFAULT_ACCESS: deny-all
+      NTFY_AUTH_FILE: /var/lib/ntfy/user.db
+      NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
+    volumes:
+      - ntfy-data:/var/lib/ntfy
+
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [backend]
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+
+volumes:
+  db-data:
+  uploads:
+  ntfy-data:
+  caddy-data:

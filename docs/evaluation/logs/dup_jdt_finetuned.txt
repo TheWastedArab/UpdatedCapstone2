@@ -1,0 +1,7 @@
+Corpus 63266 reports, 9366 duplicates in 5322 groups, 2489 queries from the newest 30% of groups
+BM25 index built in 8.6s
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 17121.64it/s]
+Corpus embedded in 72.8s
+bm25_only         recall@1=0.2411  recall@5=0.3797  recall@10=0.4395  mrr=0.3079  map=0.2185  mean_ms_per_query=2.04
+bm25_plus_sbert   recall@1=0.3049  recall@5=0.4801  recall@10=0.54  mrr=0.3843  map=0.2791  mean_ms_per_query=10.14
+Phase-1 ceiling (duplicate within top 100): 0.6440; target Recall@5 0.8: NOT met

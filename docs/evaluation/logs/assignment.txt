@@ -1,0 +1,36 @@
+89354 fixed bugs with an assignee, 949 developers in total; device cuda
+  slice  1: train   7977,   65 developers, coverage 90%, top1 0.2086, top5 0.4986, MNR 11.672 (random 32.0)
+  slice  2: train  16003,   89 developers, coverage 77%, top1 0.2049, top5 0.5137, MNR 13.701 (random 44.0)
+  slice  3: train  19685,  118 developers, coverage 92%, top1 0.2486, top5 0.5728, MNR 12.398 (random 58.5)
+  slice  4: train  19630,  115 developers, coverage 89%, top1 0.246, top5 0.5507, MNR 14.669 (random 57.0)
+  slice  5: train  19628,  123 developers, coverage 88%, top1 0.2124, top5 0.4775, MNR 16.709 (random 61.0)
+  slice  6: train  19577,  128 developers, coverage 89%, top1 0.2035, top5 0.4852, MNR 16.928 (random 63.5)
+  slice  7: train  19598,  128 developers, coverage 91%, top1 0.2051, top5 0.5189, MNR 14.619 (random 63.5)
+  slice  8: train  19544,  122 developers, coverage 72%, top1 0.1614, top5 0.4065, MNR 21.62 (random 60.5)
+  slice  9: train  19476,  132 developers, coverage 74%, top1 0.1075, top5 0.268, MNR 26.659 (random 65.5)
+  slice 10: train  19202,  146 developers, coverage 78%, top1 0.1232, top5 0.2862, MNR 33.047 (random 72.5)
+Result: average over 10 slices, 117 developers on average, coverage 84%
+  cnn_lstm           top1 0.1952  top3 0.3679  top5 0.4644  MNR 17.81
+  tfidf_svm          top1 0.2787  top3 0.4714  top5 0.5618  MNR 16.09
+  most_active_first  top1 0.0426  top3 0.0951  top5 0.1604  MNR 33.90
+  random             top1 0.0091  top3 0.0272  top5 0.0453  MNR 57.60
+  MNR reduction vs random 69.1% (target 20%: met); vs most-active-first 47.4%
+  recorded history: 1.387 reassignments per fixed bug, 100% reassigned at least once
+Generalisation check on mozilla.csv: 69549 fixed bugs, 2876 developers
+  slice  1: train   5689,  102 developers, coverage 62%, top1 0.0799, top5 0.2168, MNR 28.293 (random 50.5)
+  slice  2: train  11560,  178 developers, coverage 61%, top1 0.0732, top5 0.1932, MNR 49.531 (random 88.5)
+  slice  3: train  17188,  266 developers, coverage 54%, top1 0.1105, top5 0.1474, MNR 107.161 (random 132.5)
+  slice  4: train  17478,  336 developers, coverage 67%, top1 0.1331, top5 0.2328, MNR 101.178 (random 167.5)
+  slice  5: train  17287,  348 developers, coverage 70%, top1 0.1273, top5 0.2692, MNR 67.045 (random 173.5)
+  slice  6: train  17327,  281 developers, coverage 66%, top1 0.1419, top5 0.2925, MNR 51.516 (random 140.0)
+  slice  7: train  17860,  272 developers, coverage 76%, top1 0.1297, top5 0.2724, MNR 57.6 (random 135.5)
+  slice  8: train  18013,  270 developers, coverage 78%, top1 0.1075, top5 0.2466, MNR 61.521 (random 134.5)
+  slice  9: train  18253,  268 developers, coverage 72%, top1 0.0898, top5 0.2026, MNR 61.144 (random 133.5)
+  slice 10: train  18222,  276 developers, coverage 73%, top1 0.0967, top5 0.2384, MNR 58.238 (random 137.5)
+Second tracker: average over 10 slices, 260 developers on average, coverage 68%
+  cnn_lstm           top1 0.1095  top3 0.1887  top5 0.2340  MNR 63.72
+  tfidf_svm          top1 0.1851  top3 0.2966  top5 0.3503  MNR 61.37
+  most_active_first  top1 0.0426  top3 0.0860  top5 0.1243  MNR 77.04
+  random             top1 0.0043  top3 0.0128  top5 0.0213  MNR 130.71
+  MNR reduction vs random 51.2% (target 20%: met); vs most-active-first 17.3%
+Model of the last slice saved to C:\Users\muham\Desktop\Capstone 2 Implementation\models\assignment_benchmark.pt; report in C:\Users\muham\Desktop\Capstone 2 Implementation\docs\evaluation

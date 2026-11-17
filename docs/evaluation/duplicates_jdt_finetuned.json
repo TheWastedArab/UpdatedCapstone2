@@ -1,0 +1,33 @@
+{
+  "evaluated_at": "2026-11-17T04:21:21+00:00",
+  "dataset": "..\\data\\raw\\zenodo_eclipse\\JDT.csv",
+  "corpus_size": 63266,
+  "duplicates": 9366,
+  "groups": 5322,
+  "queries": 2489,
+  "holdout_fraction_of_groups": 0.3,
+  "phase1_candidates": 100,
+  "phase1_ceiling": 0.644,
+  "fusion_weight": 0.7,
+  "sbert_model": "../models/sbert-duplicates",
+  "results": {
+    "bm25_only": {
+      "recall@1": 0.2411,
+      "recall@5": 0.3797,
+      "recall@10": 0.4395,
+      "mrr": 0.3079,
+      "map": 0.2185,
+      "mean_ms_per_query": 2.04
+    },
+    "bm25_plus_sbert": {
+      "recall@1": 0.3049,
+      "recall@5": 0.4801,
+      "recall@10": 0.54,
+      "mrr": 0.3843,
+      "map": 0.2791,
+      "mean_ms_per_query": 10.14
+    }
+  },
+  "target_recall@5": 0.8,
+  "target_met": false
+}

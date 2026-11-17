@@ -1,0 +1,29 @@
+..\data\raw\zenodo_eclipse: 29436 pairs from 13062 groups (5598 groups held out)
+..\data\raw\gitbugs\firefox.csv: 1958 pairs from 1054 groups (452 groups held out)
+..\data\raw\gitbugs\thunderbird.csv: 1560 pairs from 694 groups (298 groups held out)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 9211.76it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+The `tokenize` method is deprecated, please use `preprocess` instead.
+Fine-tuning sentence-transformers/all-MiniLM-L6-v2 on 32954 pairs, 1028 steps, device cuda
+  step 50/1028  loss 0.5960
+  step 100/1028  loss 0.7958
+  step 150/1028  loss 0.3495
+  step 200/1028  loss 0.5505
+  step 250/1028  loss 0.5017
+  step 300/1028  loss 0.4950
+  step 350/1028  loss 0.5402
+  step 400/1028  loss 0.8085
+  step 450/1028  loss 0.4028
+  step 500/1028  loss 0.4307
+  step 550/1028  loss 0.2212
+  step 600/1028  loss 0.2749
+  step 650/1028  loss 0.4412
+  step 700/1028  loss 0.5095
+  step 750/1028  loss 0.3460
+  step 800/1028  loss 0.2287
+  step 850/1028  loss 0.2461
+  step 900/1028  loss 0.4833
+  step 950/1028  loss 0.3031
+  step 1000/1028  loss 0.2558
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|##########| 1/1 [00:00<00:00,  8.63it/s]Writing model shards: 100%|##########| 1/1 [00:00<00:00,  8.63it/s]
+Saved to C:\Users\muham\Desktop\Capstone 2 Implementation\models\sbert-duplicates in 242s. Evaluate with: python -m ml.eval_duplicates --data <file> --holdout 0.3 --model C:\Users\muham\Desktop\Capstone 2 Implementation\models\sbert-duplicates
