@@ -48,7 +48,7 @@ models/           trained models (not committed, see "Training")
 
 - Python 3.11
 - PostgreSQL 17 (on Windows: `winget install PostgreSQL.PostgreSQL.17`)
-- Node.js 20 or newer
+- Node.js 22 or newer
 - Visual Studio Code 1.85 or newer
 - Git
 

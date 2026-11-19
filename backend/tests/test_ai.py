@@ -449,6 +449,14 @@ def test_ai_status_and_health(client, world):
     assert engine.available
 
 
+def test_ai_status_names_the_dataset_without_its_server_path():
+    from app.ai.engine import public_meta
+    for recorded in (r"..\data\raw\zenodo_eclipse", "/srv/data/raw/zenodo_eclipse", "zenodo_eclipse"):
+        assert public_meta({"dataset": recorded, "rows": 3})["dataset"] == "zenodo_eclipse"
+    assert public_meta({"dataset": "synthetic (pipeline check only)"})["dataset"] == "synthetic (pipeline check only)"
+    assert public_meta({}) == {}
+
+
 def test_openapi_document_is_version_3_0(client):
     schema = client.get(API + "/openapi.json").json()
     assert schema["openapi"] == "3.0.3" and len(schema["paths"]) >= 45

@@ -5,7 +5,7 @@ WORKDIR /app
 
 # CPU build of PyTorch: inference does not need a GPU (the reason these models were chosen).
 COPY requirements.txt .
-RUN pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools && pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
 
 COPY alembic.ini .
 COPY alembic ./alembic

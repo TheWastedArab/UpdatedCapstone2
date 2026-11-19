@@ -192,6 +192,14 @@
     render();
   }
 
+  // The confidence is the share of the classifiers that agree: thirds for the earlier three-classifier vote,
+  // quarters for the current four classifiers. Only a full agreement fits both, and it needs no count.
+  const agreement = (share) => {
+    if (!share) return '';
+    if (share > 0.999) return ' (all classifiers agreed)';
+    const size = [3, 4].find((n) => Math.abs(share * n - Math.round(share * n)) < 0.01);
+    return size ? ' (' + Math.round(share * size) + ' of ' + size + ' classifiers agreed)' : '';
+  };
   const needProject = () => [h('h1', { tabindex: '-1' }, 'No project yet'),
     h('p', {}, canCreateProjects() ? 'Create a project to start tracking bugs.' : 'You are not a member of any project yet. Ask a Project Manager to add you by your email address.'),
     canCreateProjects() ? button('Create a project', () => navigate({ view: 'team' })) : null];
@@ -491,7 +499,7 @@
         canEdit ? button('Edit', openEdit, { secondary: true }) : null),
       duplicateBox, editArea,
       h('dl', { class: 'meta' },
-        h('dt', {}, 'Severity'), h('dd', {}, bug.severity + ', ' + severitySource + (bug.severity_confidence && bug.severity_source === 'model' ? ' (' + Math.round(bug.severity_confidence * 3) + ' of 3 classifiers agreed)' : '')),
+        h('dt', {}, 'Severity'), h('dd', {}, bug.severity + ', ' + severitySource + (bug.severity_source === 'model' ? agreement(bug.severity_confidence) : '')),
         h('dt', {}, 'Reported by'), h('dd', {}, who(bug.reporter) + ' on ' + fmtDate(bug.created_at)),
         h('dt', {}, 'Assigned to'), h('dd', {}, bug.assignee ? bug.assignee.display_name : 'Unassigned'),
         h('dt', {}, 'Component'), h('dd', {}, bug.component || '—'),

@@ -1,0 +1,64 @@
+{
+  "tool": "OWASP ZAP 2.17.0, automation framework (-cmd -autorun)",
+  "date": "2026-11-19",
+  "target": "backend at http://127.0.0.1:8001 (uvicorn, trained models, PostgreSQL 17 seeded with 60 demo bugs)",
+  "scope": "all 46 paths / 59 operations imported from docs/openapi.json (57 URLs), passive and active scan with the default policy, signed in as the seeded Administrator through a bearer token added to every request",
+  "excluded": [
+    "/api/v1/auth/logout and /api/v1/users/me/password (would end the scan's own session)",
+    "PATCH /api/v1/admin/users/1 (would deactivate the scanning account)"
+  ],
+  "active_scan_minutes": 2.3,
+  "counts": {
+    "high": 0,
+    "medium": 0,
+    "low": 2,
+    "informational": 2
+  },
+  "alerts": [
+    {
+      "risk": "Low (Low)",
+      "name": "Cross Site Scripting Weakness (Persistent in JSON Response)",
+      "plugin_id": 40014,
+      "cwe": 79,
+      "instances": 5,
+      "example_uri": "http://127.0.0.1:8001/api/v1/bugs/10/audit",
+      "verdict": "Not a vulnerability in this design",
+      "reason": "The API stores text exactly as submitted and returns it as application/json with X-Content-Type-Options: nosniff and Cache-Control: no-store, so a browser never renders it as HTML. The only client, the VS Code webview, inserts server text as text nodes under a nonce-based Content Security Policy; tests check that markup in titles is stored and shown inertly."
+    },
+    {
+      "risk": "Low (Low)",
+      "name": "Timestamp Disclosure - Unix",
+      "plugin_id": 10096,
+      "cwe": 497,
+      "instances": 1,
+      "example_uri": "http://127.0.0.1:8001/api/v1/ai/status",
+      "verdict": "Accepted",
+      "reason": "The number is the version tag of the duplicate-detection model, a training timestamp, not a secret."
+    },
+    {
+      "risk": "Informational (High)",
+      "name": "Authentication Request Identified",
+      "plugin_id": 10111,
+      "cwe": -1,
+      "instances": 1,
+      "example_uri": "http://127.0.0.1:8001/api/v1/auth/login",
+      "verdict": "Informational",
+      "reason": "ZAP identifying the login request; no finding."
+    },
+    {
+      "risk": "Informational (Medium)",
+      "name": "User Agent Fuzzer",
+      "plugin_id": 10104,
+      "cwe": 0,
+      "instances": 3,
+      "example_uri": "http://127.0.0.1:8001/api/v1/admin/profiles/10/activate",
+      "verdict": "Informational",
+      "reason": "ZAP's user-agent fuzzer saw no difference in behaviour; no finding."
+    }
+  ],
+  "found_by_review_of_the_scan_responses": {
+    "issue": "GET /api/v1/ai/status returned the severity model's training-set path on the server (for example ..\\data\\raw\\zenodo_eclipse) to any signed-in user",
+    "fix": "app/ai/engine.py public_meta() now returns only the dataset name; test_ai_status_names_the_dataset_without_its_server_path"
+  },
+  "not_covered": "The VS Code webview itself (not a web page ZAP can crawl), TLS (checked separately, tls_check.json), denial of service, and business-logic flaws beyond the authorisation tests in backend/tests."
+}
