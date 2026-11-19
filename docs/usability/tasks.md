@@ -12,7 +12,9 @@ Give the participant one card at a time. The facilitator's notes (in italics) ar
 >
 > Email: `p1@study.example.com`
 
-*(Write the participant's number on the card: P2 uses `p2@study.example.com`, and so on.)*
+*(Prepare one Task 1 card per participant, with that participant's own address in place of
+`p1@study.example.com`: `p2@study.example.com` for P2, and so on. It must be the same address
+given to `add_participant.py`, or the account will not be added to the project.)*
 
 *Success: the participant is signed in and sees the Demo Shop bug list (the facilitator's
 `add_participant.py`, started before this card, has already added the account). Take a lap
