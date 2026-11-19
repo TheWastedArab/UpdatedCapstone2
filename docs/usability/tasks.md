@@ -10,7 +10,9 @@ Give the participant one card at a time. The facilitator's notes (in italics) ar
 > yourself with the email address on this card and a password of your choice, and get to the
 > point where you are signed in.
 >
-> Email: `p<N>@study.example.com`
+> Email: `p1@study.example.com`
+
+*(Write the participant's number on the card: P2 uses `p2@study.example.com`, and so on.)*
 
 *Success: the participant is signed in and sees the Demo Shop bug list (the facilitator's
 `add_participant.py`, started before this card, has already added the account). Take a lap

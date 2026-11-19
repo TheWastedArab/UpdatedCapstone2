@@ -38,6 +38,11 @@ open "login" bug that Task 3 asks for (it does nothing if an open copy already e
 script signs in as the seeded project manager; set `BT_URL` if the server is not on
 `http://127.0.0.1:8000`.
 
+After each session, sign the participant out (Command Palette → "Bug Tracker: Sign Out")
+and check that the panel shows the sign-in screen. The extension keeps the session between
+VS Code restarts, so without this the next participant would start already signed in and
+would never see "Create an account".
+
 ## Procedure (about 25 minutes per participant)
 
 1. **Welcome (2 min).** Read the information sheet, collect the signed consent form.
@@ -48,8 +53,8 @@ script signs in as the seeded project manager; set `BT_URL` if the server is not
    Do not answer questions about the interface; you may only repeat the task text, and
    each repetition counts as assistance (completion 0.5 for that task).
    - **Before handing over Task 1**, start
-     `python docs/usability/add_participant.py p<N>@study.example.com` in a terminal the
-     participant cannot see. It waits for that account to be created and adds it to the
+     `python docs/usability/add_participant.py p1@study.example.com` in a terminal the
+     participant cannot see (use `p2@study.example.com` for P2, and so on). It waits for that account to be created and adds it to the
      "Demo Shop" project as a Reporter within a second, standing in for the project manager
      who would invite a new user. By the time the participant has verified the email and
      signed in, the project is there; nothing is said to them about it.
