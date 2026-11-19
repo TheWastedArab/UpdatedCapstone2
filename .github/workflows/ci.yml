@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -89,19 +92,22 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: extension/package-lock.json
+      # The CLI first, so Snyk Code still runs if a project dependency fails to install.
+      - name: Install Snyk CLI
+        if: ${{ env.SNYK_TOKEN != '' }}
+        run: npm install -g snyk
       - name: Install dependencies
         if: ${{ env.SNYK_TOKEN != '' }}
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r backend/requirements.txt
           (cd extension && npm ci)
-          npm install -g snyk
       - name: Snyk Open Source, backend
         if: ${{ env.SNYK_TOKEN != '' && !cancelled() }}
         run: snyk test --file=backend/requirements.txt --package-manager=pip --command=python --policy-path=backend
       - name: Snyk Open Source, extension
         if: ${{ env.SNYK_TOKEN != '' && !cancelled() }}
-        run: snyk test --file=extension/package-lock.json
+        run: snyk test --file=extension/package-lock.json --dev
       # Report-only: the remaining findings were reviewed as false positives (docs/EVALUATION.md,
       # Security) and Snyk Code has no per-finding ignore, so they are printed but do not fail
       # the job. The dependency scans above stay blocking.

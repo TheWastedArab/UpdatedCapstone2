@@ -1,9 +1,10 @@
 # Snyk Code policy (repository root). The backend's dependency policy is backend/.snyk.
-# Test fixtures and the development tools below sign in with fixed passwords to a temporary
-# test database or the seeded demo database; they are not credentials and are never shipped,
-# so they are left out of the secrets scan.
+# The two test files below and the development tools sign in with fixed passwords to a
+# temporary test database or the seeded demo database; they are not credentials and are never
+# shipped, so they are left out of the scan. The other test files are still scanned.
 exclude:
   global:
-    - backend/tests/**
+    - backend/tests/conftest.py
+    - backend/tests/test_auth_projects.py
     - docs/usability/**
     - extension/scripts/**
