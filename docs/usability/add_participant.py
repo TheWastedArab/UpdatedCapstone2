@@ -50,19 +50,28 @@ def archive_earlier_sessions(client: httpx.Client, pid: int) -> None:
         for bug in found["items"]:
             by_participant = (bug.get("reporter") or {}).get("email", "").endswith(STUDY_DOMAIN)
             used_task3 = bug["title"] == TASK3_TITLE and bug["status"] != "Open"
-            if (by_participant or used_task3) and bug["title"] != ARCHIVED_TITLE:
+            archived = bug["title"] == ARCHIVED_TITLE
+            # An archived bug that did not reach Closed last time is retried, not skipped.
+            if (by_participant or used_task3 or archived) and not (archived and bug["status"] == "Closed"):
                 stale.append(bug)
         if page * found["page_size"] >= found["total"]:
             break
         page += 1
+    closed = 0
     for bug in stale:
-        client.patch(f"/bugs/{bug['id']}", json={"title": ARCHIVED_TITLE, "description": ARCHIVED_TEXT}).raise_for_status()
+        if bug["title"] != ARCHIVED_TITLE:
+            client.patch(f"/bugs/{bug['id']}", json={"title": ARCHIVED_TITLE, "description": ARCHIVED_TEXT}).raise_for_status()
         status = bug["status"]
         for target in CLOSE_PATH[CLOSE_PATH.index(status) + 1:] if status in CLOSE_PATH else []:
-            if not client.post(f"/bugs/{bug['id']}/status", json={"status": target}).is_success:
-                break  # left where it is; the neutral title already keeps it out of the next session
+            response = client.post(f"/bugs/{bug['id']}/status", json={"status": target})
+            if not response.is_success:
+                # The neutral title already keeps it out of the next session; the next --setup retries.
+                print(f"Bug #{bug['id']} archived but left at {status}: {response.status_code} {response.text}")
+                break
+            status = target
+        closed += status == "Closed"
     if stale:
-        print(f"Archived {len(stale)} bug(s) from earlier sessions")
+        print(f"Archived {len(stale)} bug(s) from earlier sessions, {closed} of them closed")
 
 
 def main(args: list[str]) -> None:
