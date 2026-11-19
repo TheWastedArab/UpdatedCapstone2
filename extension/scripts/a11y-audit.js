@@ -53,7 +53,7 @@ async function axe(page) {
 }
 
 async function navigate(page, route) {
-  await page.evaluate((r) => window.postMessage({ type: 'navigate', route: r }, '*'), route);
+  await page.evaluate((r) => window.postMessage({ type: 'navigate', route: r }, window.location.origin), route);
   await sleep(1200);
 }
 

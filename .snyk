@@ -1,0 +1,6 @@
+# Snyk Code policy (repository root). The backend's dependency policy is backend/.snyk.
+# Test fixtures sign in throw-away accounts with fixed passwords against a temporary
+# database; they are not credentials, so the tests are left out of the secrets scan.
+exclude:
+  global:
+    - backend/tests/**

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
-const TOKEN_KEY = 'bugTracker.sessionToken';
+// Name of the SecretStorage entry that holds the session token (not a secret itself).
+const SECRET_SLOT = 'bugTracker.sessionToken';
 const API_PREFIX = '/api/v1';
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
@@ -42,7 +43,7 @@ export class Api {
   constructor(private readonly secrets: vscode.SecretStorage) {}
 
   async init(): Promise<void> {
-    this.token = await this.secrets.get(TOKEN_KEY);
+    this.token = await this.secrets.get(SECRET_SLOT);
   }
 
   get signedIn(): boolean {
@@ -67,9 +68,9 @@ export class Api {
   private async setToken(token: string | undefined): Promise<void> {
     this.token = token;
     if (token === undefined) {
-      await this.secrets.delete(TOKEN_KEY);
+      await this.secrets.delete(SECRET_SLOT);
     } else {
-      await this.secrets.store(TOKEN_KEY, token);
+      await this.secrets.store(SECRET_SLOT, token);
     }
   }
 
