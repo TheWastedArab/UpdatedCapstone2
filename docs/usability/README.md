@@ -26,15 +26,19 @@ group (developer or reporter) and years of VS Code use; no names in the data fil
 ## Setup (once, before the sessions)
 
 1. Start the backend with `docker compose up` (or `uvicorn app.main:app` from `backend/`)
-   and seed it with `python scripts/seed.py`. In development mode the email verification
+   and seed it with `python -m scripts.seed`, run from `backend/`. In development mode the email verification
    code is filled in for the user, so no mail server is needed.
 2. Install the extension from the `.vsix` (`npm run package` in `extension/`) into a clean
    VS Code profile: `code --profile "Usability" --install-extension ai-bug-tracker-1.0.0.vsix`.
 3. Check that the seeded project "Demo Shop" exists and that the Project Manager account can sign in.
 4. Prepare a screen recorder (optional, only with consent) and a stopwatch.
 
-Before each session run `python docs/usability/add_participant.py --setup`, which files the
-open "login" bug that Task 3 asks for (it does nothing if an open copy already exists). The
+Before each session run `python docs/usability/add_participant.py --setup`. It first archives
+what earlier sessions left behind: the bugs earlier participants filed, which would otherwise
+trigger the duplicate warning in Task 2, and the used Task 3 copy, which would otherwise show
+up next to the fresh one. Each gets a neutral title and description and is moved to Closed, so
+every participant starts from the same state. It then files the open "login" bug that Task 3
+asks for (no second copy if an open one already exists). The
 script signs in as the seeded project manager; set `BT_URL` if the server is not on
 `http://127.0.0.1:8000`.
 
