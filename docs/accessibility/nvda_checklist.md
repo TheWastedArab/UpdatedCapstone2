@@ -19,8 +19,9 @@ when heard instead of seen. This checklist is that manual test, done with NVDA o
 
 ## How to record
 
-For each item write **Pass**, **Fail** or **N/A** in the Result column, and for every Fail paste
-what NVDA said from the speech viewer into Notes. An item passes only if it works by
+For each item write **Pass**, **Fail** or **N/A** in the Result column. For every Fail paste
+what NVDA said from the speech viewer into Notes, and for every N/A write why the check
+cannot apply (see "Verdict" at the end). An item passes only if it works by
 keyboard alone *and* what is announced is enough to act on without seeing the screen.
 WCAG references are the success criteria the item checks.
 
@@ -106,4 +107,15 @@ WCAG references are the success criteria the item checks.
 Tester: ____________ NVDA version: ________ VS Code version: ________ Date: __________
 
 Each Fail becomes a bug report in the tracker itself with severity High if it blocks a task,
-otherwise Medium. NFR-12 can be reported as met when A–F have no Fail that blocks a task.
+otherwise Medium.
+
+**Verdict.** NFR-12 can be reported as met only when all three hold:
+
+1. Every row has a result. A blank row means the run is incomplete, not passed.
+2. Every N/A has a reason in Notes that says why the check cannot apply (for example
+   "D6: the bug has no attachment and the test data has none"). "Not tested" or "no time"
+   is not a reason: that row counts as untested, and the verdict is not met until it is run.
+3. No Fail blocks a task. Fails that do not block a task are reported with the verdict.
+
+Record the counts in the summary table; the report should give Pass, Fail and N/A
+separately, not only the verdict.

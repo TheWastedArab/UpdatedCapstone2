@@ -1,12 +1,13 @@
 """Facilitator helper for the usability study (NFR-11).
 
     python docs/usability/add_participant.py --setup             # once, before the first session
-    python docs/usability/add_participant.py p3@study.example.com  # after a participant registers
-    python docs/usability/add_participant.py --status                   # before Task 5
+    python docs/usability/add_participant.py p3@study.example.com  # just before handing over Task 1
+    python docs/usability/add_participant.py --status                # before Task 5
 
 --setup files the open "login" bug that Task 3 asks participants to find.
-An email address adds that new account to the Demo Shop project as a Reporter, standing in
-for the project manager who would invite a real new user (pause the stopwatch meanwhile).
+An email address waits until that account is registered and then adds it to the Demo Shop
+project as a Reporter at once, standing in for the project manager who would invite a new
+user. The participant is never told about it and the stopwatch is never paused.
 --status moves the Task 3 bug, which the participant now watches, to "In Progress" for Task 5
 (run --setup again before the next participant's Task 3 to file a fresh open copy).
 
@@ -15,6 +16,7 @@ Development data only: never run this against a deployed system.
 """
 import os
 import sys
+import time
 
 import httpx
 
@@ -22,6 +24,7 @@ BASE = os.environ.get("BT_URL", "http://127.0.0.1:8000").rstrip("/") + "/api/v1"
 MANAGER = "manager@demo.example.com"
 PASSWORD = "Demo!Pass123"  # the seed's DEMO_PASSWORD
 PROJECT = "Demo Shop"
+WAIT_SECONDS = 15 * 60
 TASK3_TITLE = "Login page rejects a correct password after the session has expired"
 TASK3_TEXT = ("Steps: sign in, leave the tab idle for 40 minutes, sign out and sign in again with the same "
               "password. Expected: signed in. Actual: 'Invalid email or password' until the page is reloaded.")
@@ -56,9 +59,17 @@ def main(args: list[str]) -> None:
         response = client.post(f"/bugs/{bugs[0]['id']}/status", json={"status": "In Progress"})
         print(response.status_code, "status changed to In Progress" if response.is_success else response.text)
     else:
-        response = client.post(f"/projects/{pid}/members", json={"email": args[0], "role": "reporter"})
-        if response.status_code == 404:
-            sys.exit("No active account with that email yet: has the participant finished verifying it?")
+        # Started before Task 1: wait until the participant's registration creates the account,
+        # then add it at once, so the project is there when they first sign in.
+        print(f"Waiting for {args[0]} to register (Ctrl+C to stop)...", flush=True)
+        deadline = time.monotonic() + WAIT_SECONDS
+        while True:
+            response = client.post(f"/projects/{pid}/members", json={"email": args[0], "role": "reporter"})
+            if response.status_code != 404:
+                break
+            if time.monotonic() > deadline:
+                sys.exit(f"No account for {args[0]} after {WAIT_SECONDS // 60} minutes")
+            time.sleep(0.5)
         print(response.status_code, "added as Reporter" if response.is_success else response.text)
 
 

@@ -12,8 +12,9 @@ Give the participant one card at a time. The facilitator's notes (in italics) ar
 >
 > Email: `p<N>@study.example.com`
 
-*Success: the participant is signed in and sees the bug list (empty or "no project" message).
-Then pause the clock and run `add_participant.py`; ask the participant to press Refresh.*
+*Success: the participant is signed in and sees the Demo Shop bug list (the facilitator's
+`add_participant.py`, started before this card, has already added the account). Take a lap
+time and hand over Task 2 at once, without stopping the stopwatch.*
 
 ---
 
@@ -23,7 +24,7 @@ Then pause the clock and run `add_participant.py`; ask the participant to press 
 > without tax when the cart has more than ten items. Report this bug in the Demo Shop project.
 
 *Success: the report is submitted and its detail page (with the assigned severity) is shown.
-Task 1 + Task 2 time is the NFR-11 measure. If a duplicate warning appears, any choice
+Task 1 + Task 2, one continuous run, is the NFR-11 measure. If a duplicate warning appears, any choice
 that ends in a submitted report counts.*
 
 ---

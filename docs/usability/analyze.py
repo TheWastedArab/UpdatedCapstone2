@@ -44,7 +44,10 @@ def main(argv: list[str]) -> None:
     for row in timing:
         person = people.setdefault(row["participant"], {"group": row["group"], "vscode_years": row["vscode_years"], "tasks": {}})
         task = int(row["task"])
-        seconds = float(row["seconds"]) - float(row["paused_seconds"] or 0)
+        # Elapsed stopwatch time; the procedure never pauses the clock, so nothing is subtracted.
+        if "paused_seconds" in row:
+            sys.exit(f"{paths[0]} has a paused_seconds column: the procedure no longer pauses the clock (README)")
+        seconds = float(row["seconds"])
         completion = float(row["completion"])
         if completion not in (0, 0.5, 1):
             sys.exit(f"completion must be 0, 0.5 or 1 (participant {row['participant']}, task {task})")
@@ -87,7 +90,7 @@ def main(argv: list[str]) -> None:
     print(f"{'Task':<6}{'n':>3}{'done':>7}{'median s':>10}{'errors':>8}")
     for task, t in tasks.items():
         print(f"{task:<6}{t['participants']:>3}{t['completion_rate']:>7.0%}{t['median_seconds']:>10.0f}{t['errors']:>8}")
-    print("\nTime to first report (Task 1 + Task 2, pauses excluded):")
+    print("\nTime to first report (Task 1 + Task 2, one continuous run):")
     for name, p in people.items():
         seconds = p["first_report_seconds"]
         print(f"  {name:<8} {'-' if seconds is None else f'{seconds:.0f} s':>7}  {'within 5 min' if p['first_report_within_limit'] else 'NOT within 5 min'}")

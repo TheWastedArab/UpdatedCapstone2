@@ -45,14 +45,22 @@ script signs in as the seeded project manager; set `BT_URL` if the server is not
    the tasks, but you may give up on any task at any time."
 2. **Background (1 min).** Note group and VS Code experience on the timing sheet.
 3. **Tasks (about 15 min).** Hand over the task cards one at a time (`tasks.md`).
-   Start the stopwatch when the participant has read the card and says "ready"; stop it
-   when the success condition on the card is met, or when the participant gives up, or
-   at the time limit. Do not answer questions about the interface; you may only repeat
-   the task text.
-   - After Task 1 (registration) run
-     `python docs/usability/add_participant.py <their email>` so the new account joins the
-     "Demo Shop" project as a Reporter. **Pause the stopwatch for this** and note the pause; it
-     stands in for the project manager who would invite a real new user.
+   Do not answer questions about the interface; you may only repeat the task text, and
+   each repetition counts as assistance (completion 0.5 for that task).
+   - **Before handing over Task 1**, start
+     `python docs/usability/add_participant.py p<N>@study.example.com` in a terminal the
+     participant cannot see. It waits for that account to be created and adds it to the
+     "Demo Shop" project as a Reporter within a second, standing in for the project manager
+     who would invite a new user. By the time the participant has verified the email and
+     signed in, the project is there; nothing is said to them about it.
+   - **Tasks 1 and 2 are timed as one continuous run.** Start the stopwatch when the
+     participant has read the Task 1 card and says "ready". When Task 1's success condition
+     is met, take a lap time and hand over the Task 2 card at once, without stopping the
+     stopwatch. Stop it when the report is submitted, the participant gives up, or the
+     limit is reached. The clock is never paused, so Task 1 + Task 2 is the real time
+     from starting registration to the first report, including reading the second card.
+   - Tasks 3 to 5 are timed separately: start when the participant says "ready", stop at
+     the success condition, when they give up, or at the time limit.
    - Before Task 5 run `python docs/usability/add_participant.py --status`, which moves the
      Task 3 bug (now watched by the participant) to In Progress, so a notification is waiting.
 4. **SUS (3 min).** The participant fills in `sus.md` on paper or screen right after Task 5.
@@ -63,8 +71,8 @@ script signs in as the seeded project manager; set `BT_URL` if the server is not
 
 | Measure | How | Recorded in |
 |---|---|---|
-| **Time to first report** (NFR-11) | Task 1 time + Task 2 time, pauses excluded | `timing_sheet.csv` |
-| Task completion | 1 = done unaided, 0.5 = done after a repeated instruction, 0 = gave up or over the limit | `timing_sheet.csv` |
+| **Time to first report** (NFR-11) | Task 1 lap + Task 2 lap of the one continuous run (no pauses) | `timing_sheet.csv` |
+| Task completion | 1 = done unaided, 0.5 = done after any assistance (including a repeated instruction), 0 = gave up or over the limit | `timing_sheet.csv` |
 | Errors | Wrong screen opened, wrong field filled, error message shown | `timing_sheet.csv` |
 | Satisfaction | SUS score 0–100 | `sus_responses.csv` |
 | Comments | Think-aloud and debrief notes | `notes` column |
@@ -72,7 +80,9 @@ script signs in as the seeded project manager; set `BT_URL` if the server is not
 ## Pass criteria
 
 - **NFR-11 is met** when **at least 4 of the 5** participants file their first report within
-  5 minutes of starting registration (Task 1 + Task 2 ≤ 300 s) without outside help.
+  5 minutes of starting registration (Task 1 + Task 2 ≤ 300 s), with both tasks completed
+  unaided (completion 1). `seconds` in `timing_sheet.csv` is the elapsed stopwatch time of
+  the task, with nothing subtracted.
   With five participants the result is an indication, not a statistical proof; the report
   should say so.
 - Secondary: mean task completion ≥ 80%, and a mean SUS score ≥ 68 (the commonly cited
