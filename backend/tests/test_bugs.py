@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from app.ai.engine import engine
 from app.database import utcnow
-from app.models import Bug
+from app.models import Bug, BugEmbedding
 from app.services import email, ntfy
 from tests.conftest import LONG_TEXT
 
@@ -314,3 +314,19 @@ def test_everything_degrades_when_ai_is_disabled(world, monkeypatch):
     assert world.reporter.get("/ai/status").json()["enabled"] is False
     # manual assignment still works
     assert world.manager.post(f"/bugs/{created['bug']['id']}/assign", {"assignee_id": world.dev1.id}).status_code == 200
+
+
+def test_editing_the_text_drops_a_stale_embedding(world, db, monkeypatch):
+    """An embedding of the old text must not survive an edit it could not be refreshed for."""
+    bug = world.reporter.post(f"/projects/{world.pid}/bugs", {"title": "Crash on start", "description": LONG_TEXT}).json()["bug"]
+    db.merge(BugEmbedding(bug_id=bug["id"], model="old-text", vector=b"x" * 16))
+    db.commit()
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("encoder down")
+
+    monkeypatch.setattr(engine.duplicates, "store_embedding", boom)
+    r = world.reporter.patch(f"/bugs/{bug['id']}", {"title": "Crash when the app starts offline"})
+    assert r.status_code == 200
+    db.expire_all()
+    assert db.get(BugEmbedding, bug["id"]) is None
