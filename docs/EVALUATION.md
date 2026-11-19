@@ -20,7 +20,7 @@ met, that is stated, with the measured value.
 | Accessibility (NFR-12) | WCAG 2.1 AA | 0 axe violations on 8 screens × 3 themes; 48/48 controls reachable by keyboard | Partly |
 | Security scans (NFR-07) | no high or medium findings | ZAP: 0 high, 0 medium, 2 low (by design); dependencies: 0 known vulnerabilities after upgrades; Snyk: 0 open dependency issues (9 ignored with reasons), Snyk Code 18 → 3 reviewed false positives | Yes |
 | 50 simultaneous reports within 10% of baseline | ≤ +10% | see "System level" | Partly |
-| Backend test coverage | ≥ 70% | 94% (58 tests, SQLite and PostgreSQL) | Yes |
+| Backend test coverage | ≥ 70% | 94% (59 tests, SQLite and PostgreSQL) | Yes |
 | REST API documented in OpenAPI 3.0 | all endpoints | 46 paths, `docs/openapi.json` | Yes |
 
 Not measured: the five-participant usability study for NFR-11 (it needs people; the kit to run

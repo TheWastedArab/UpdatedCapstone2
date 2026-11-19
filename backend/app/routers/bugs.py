@@ -8,7 +8,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
-from sqlalchemy import func, literal_column, or_, select
+from sqlalchemy import delete, func, literal_column, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from ..ai import assignment
@@ -20,7 +20,7 @@ from ..deps import FORBIDDEN, at_least, get_current_user, require_bug, require_p
 from ..models import (
     ACTIVE_STATUSES, ROLE_DEVELOPER, ROLE_MANAGER, SEVERITY_UNCLASSIFIED, STATUS_CLOSED, STATUS_IN_PROGRESS,
     STATUS_OPEN, STATUS_RESOLVED, STATUS_VERIFIED, UNAVAILABLE, Attachment, AuditLog, Bug, BugWatcher, Comment,
-    DeveloperProfile, ProjectMember, User,
+    BugEmbedding, DeveloperProfile, ProjectMember, User,
 )
 from ..schemas import (
     AssignIn, AttachmentOut, AuditOut, BugCreatedOut, BugIn, BugListItem, BugOut, BugPage, BugUpdateIn, CommentIn,
@@ -248,6 +248,10 @@ def update_bug(bug_id: int, data: BugUpdateIn, user: User = Depends(get_current_
     if text_changed:
         bug.keywords = extract_keywords(bug.text)
         engine.duplicates.invalidate(bug.project_id)
+        # The stored vector describes the old text. Drop it first, so that if it cannot be
+        # refreshed now (model not loaded, or encoding fails) the duplicate check embeds the
+        # new text on demand instead of matching against the old one.
+        db.execute(delete(BugEmbedding).where(BugEmbedding.bug_id == bug.id))
         if engine.available:
             try:
                 engine.duplicates.store_embedding(db, bug)

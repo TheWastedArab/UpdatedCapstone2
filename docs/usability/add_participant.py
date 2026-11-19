@@ -4,7 +4,9 @@
     python docs/usability/add_participant.py p3@study.example.com  # just before handing over Task 1
     python docs/usability/add_participant.py --status                # before Task 5
 
---setup files the open "login" bug that Task 3 asks participants to find.
+--setup archives what earlier sessions left (the bugs participants filed and the used Task 3
+copy: neutral title and description, moved to Closed), so every participant starts from the
+same state, then files the open "login" bug that Task 3 asks participants to find.
 An email address waits until that account is registered and then adds it to the Demo Shop
 project as a Reporter at once, standing in for the project manager who would invite a new
 user. The participant is never told about it and the stopwatch is never paused.
@@ -28,6 +30,48 @@ WAIT_SECONDS = 15 * 60
 TASK3_TITLE = "Login page rejects a correct password after the session has expired"
 TASK3_TEXT = ("Steps: sign in, leave the tab idle for 40 minutes, sign out and sign in again with the same "
               "password. Expected: signed in. Actual: 'Invalid email or password' until the page is reloaded.")
+STUDY_DOMAIN = "@study.example.com"
+ARCHIVED_TITLE = "Archived usability-study item"
+ARCHIVED_TEXT = "Archived after a usability-study session; not a real defect report."
+CLOSE_PATH = ["Open", "In Progress", "Resolved", "Verified", "Closed"]
+
+
+def archive_earlier_sessions(client: httpx.Client, pid: int) -> None:
+    """Give every participant the same starting point.
+
+    Bugs filed by earlier participants (Task 2) would trigger the duplicate warning for the
+    next one, and used Task 3 copies would show up beside the fresh one in a "login" search.
+    Each is given a neutral title and description, so search and duplicate detection no
+    longer match it, and is moved on to Closed.
+    """
+    stale, page = [], 1
+    while True:
+        found = client.get(f"/projects/{pid}/bugs", params={"page": page, "page_size": 100}).raise_for_status().json()
+        for bug in found["items"]:
+            by_participant = (bug.get("reporter") or {}).get("email", "").endswith(STUDY_DOMAIN)
+            used_task3 = bug["title"] == TASK3_TITLE and bug["status"] != "Open"
+            archived = bug["title"] == ARCHIVED_TITLE
+            # An archived bug that did not reach Closed last time is retried, not skipped.
+            if (by_participant or used_task3 or archived) and not (archived and bug["status"] == "Closed"):
+                stale.append(bug)
+        if page * found["page_size"] >= found["total"]:
+            break
+        page += 1
+    closed = 0
+    for bug in stale:
+        if bug["title"] != ARCHIVED_TITLE:
+            client.patch(f"/bugs/{bug['id']}", json={"title": ARCHIVED_TITLE, "description": ARCHIVED_TEXT}).raise_for_status()
+        status = bug["status"]
+        for target in CLOSE_PATH[CLOSE_PATH.index(status) + 1:] if status in CLOSE_PATH else []:
+            response = client.post(f"/bugs/{bug['id']}/status", json={"status": target})
+            if not response.is_success:
+                # The neutral title already keeps it out of the next session; the next --setup retries.
+                print(f"Bug #{bug['id']} archived but left at {status}: {response.status_code} {response.text}")
+                break
+            status = target
+        closed += status == "Closed"
+    if stale:
+        print(f"Archived {len(stale)} bug(s) from earlier sessions, {closed} of them closed")
 
 
 def main(args: list[str]) -> None:
@@ -47,6 +91,7 @@ def main(args: list[str]) -> None:
         return [b for b in items if b["title"] == TASK3_TITLE]
 
     if args[0] == "--setup":
+        archive_earlier_sessions(client, pid)
         if open_task3_bugs():
             print("An open Task 3 bug is already present")
         else:
