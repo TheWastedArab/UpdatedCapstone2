@@ -7,7 +7,7 @@
   let token = null;
   let projectId;
   const API = '/api/v1';
-  const send = (message) => window.postMessage(message, '*');
+  const send = (message) => window.postMessage(message, location.origin);
 
   async function request(method, path, query, body) {
     const url = new URL(API + path, location.origin);

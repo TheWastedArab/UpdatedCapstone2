@@ -18,7 +18,7 @@ met, that is stated, with the measured value.
 | Search and filter over 50,000 bugs | ≤ 2 s | 0.28 s (worst p95, 20 users at once) | Yes |
 | TLS 1.2 or later only (NFR-05) | TLS ≥ 1.2 | 1.0 and 1.1 refused, 1.2 and 1.3 accepted | Yes |
 | Accessibility (NFR-12) | WCAG 2.1 AA | 0 axe violations on 8 screens × 3 themes; 48/48 controls reachable by keyboard | Partly |
-| Security scans (NFR-07) | no high or medium findings | ZAP: 0 high, 0 medium, 2 low (by design); dependencies: 0 known vulnerabilities after upgrades | Yes |
+| Security scans (NFR-07) | no high or medium findings | ZAP: 0 high, 0 medium, 2 low (by design); dependencies: 0 known vulnerabilities after upgrades; Snyk: 0 open dependency issues (9 ignored with reasons), Snyk Code 18 → 3 reviewed false positives | Yes |
 | 50 simultaneous reports within 10% of baseline | ≤ +10% | see "System level" | Partly |
 | Backend test coverage | ≥ 70% | 94% (58 tests, SQLite and PostgreSQL) | Yes |
 | REST API documented in OpenAPI 3.0 | all endpoints | 46 paths, `docs/openapi.json` | Yes |
@@ -247,7 +247,7 @@ because the API returns submitted text unchanged as `application/json` with `nos
 `no-store`, and the only client renders it as text nodes; and a Unix timestamp, which is the
 version tag of the duplicate model. Reading the scan's responses found one real issue that
 ZAP does not flag, now fixed: `GET /ai/status` showed every signed-in user the training-set
-path on the server (`..\dataaw\zenodo_eclipse`); it now gives only the dataset name.
+path on the server (`..\data\raw\zenodo_eclipse`); it now gives only the dataset name.
 
 **Dependency audit.** `pip-audit` over the 108 installed backend packages and `npm audit` over
 the extension (`dependency_audit.json`). The backend's only finding was setuptools 65.5.0
@@ -256,5 +256,27 @@ The extension ships no runtime dependencies; three moderate advisories in the bu
 packager (`@vscode/vsce` via `glob` and `minimatch`) were removed by moving to vsce 4.1.1 with
 patched versions pinned through `overrides`. vsce 4 needs Node.js 22, which CI now uses.
 After the changes both audits report no known vulnerabilities.
+
+**Snyk (CI, on every pull request).** Three steps in the `snyk` job: Snyk Open Source over the
+installed backend dependencies and over the extension's lockfile, and Snyk Code over the source.
+Open Source: of the 71 backend dependencies, setuptools 79 (pulled in by torch) had two
+advisories, fixed by requiring setuptools 84.1 or later; nine advisories in transformers have no
+fixed release. Each of the nine needs a crafted model, checkpoint or remote code to be loaded,
+which this service never does (own `models/` directory or the official MiniLM only, no
+`trust_remote_code`, `torch.load(weights_only=True)`), so they are ignored with reasons in
+`backend/.snyk` until May 2027. The extension had none. Snyk Code first reported 18 issues
+(2 high, 5 medium, 11 low), none exploitable:
+the two high ones were the attachment download path, built from a name the server generates
+(`uuid4().hex`), and the name of the SecretStorage slot for the session token, read as a
+hardcoded secret. Changes: downloads now refuse a stored name that is not 32 hex characters, the
+development shim and audit script post messages to their own origin instead of `*`, and the
+fixed passwords of the test fixtures and of the development tools (`docs/usability`,
+`extension/scripts`), which only sign in to a test or seeded demo database, are excluded in the
+root `.snyk`. Three findings remain, all reviewed as false positives: the SecretStorage slot name
+(`extension/src/api.ts`, high), the output path of `export-openapi`, which the operator passes on
+the command line (`backend/app/cli.py`, low), and the webview's message listener, which in VS Code
+only receives messages from the extension host (`extension/media/main.js`, low). Snyk Code has
+no per-finding ignore, so its step prints them but does not fail the job; the two dependency
+scans stay blocking and report 0 open issues.
 
 Not done: a third-party penetration test.

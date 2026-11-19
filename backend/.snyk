@@ -1,0 +1,58 @@
+# Snyk policy for the backend dependencies (read with --policy-path=backend in CI).
+#
+# The nine transformers advisories below have no fixed version. Each one needs an attacker to
+# supply a malicious model, checkpoint or checkpoint index, or to have a custom_generate module
+# loaded from a model repository. This service loads models only from its own models/ directory
+# or the configured MiniLM model of the official sentence-transformers repository; it never sets
+# trust_remote_code, never calls load_custom_generate or the checkpoint conversion scripts, and
+# loads its own checkpoints with torch.load(weights_only=True). User input (bug text and
+# attachments) never reaches a model loader. Reviewed 2026-11-19; the ignores expire after six
+# months so the decision is revisited, or dropped as soon as a fixed release appears.
+version: v1.25.0
+ignore:
+  SNYK-PYTHON-TRANSFORMERS-18965959:
+    - '*':
+        reason: Directory traversal via a crafted local checkpoint index; only the service's own model files are loaded
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14560695:
+    - '*':
+        reason: Code injection in convert_config on a crafted checkpoint; conversion scripts are never called
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14563374:
+    - '*':
+        reason: Deserialisation of crafted weights; only the service's own model files are loaded
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14564275:
+    - '*':
+        reason: Deserialisation of a crafted checkpoint; only the service's own model files are loaded
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14564363:
+    - '*':
+        reason: Deserialisation in the megatron_gpt2 path; Megatron models are never used
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14564364:
+    - '*':
+        reason: Code injection in convert_config on a crafted checkpoint; conversion scripts are never called
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14564365:
+    - '*':
+        reason: Deserialisation of a crafted model file; only the service's own model files are loaded
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-14564366:
+    - '*':
+        reason: Code injection in convert_config on a crafted checkpoint; conversion scripts are never called
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+  SNYK-PYTHON-TRANSFORMERS-19500670:
+    - '*':
+        reason: custom_generate module cached before the trust_remote_code check; load_custom_generate is never called
+        expires: 2027-05-19T00:00:00.000Z
+        created: 2026-11-19T00:00:00.000Z
+patch: {}
