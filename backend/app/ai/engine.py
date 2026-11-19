@@ -1,5 +1,6 @@
 """AI Triage Engine: owns the models, loaded once at application start (Section 3.5.4)."""
 import logging
+from pathlib import PureWindowsPath
 
 from ..config import get_settings
 from .duplicates import DuplicateDetector
@@ -43,8 +44,16 @@ class AIEngine:
             "severity": self.severity.mode,
             "duplicates": "bm25+sbert" if self.duplicates.embedder.ready else "bm25+lexical",
             "assignment": "per-project (see project dashboard)",
-            "detail": {"severity_model": self.severity.meta, "sbert_model": self.duplicates.embedder.name or None},
+            "detail": {"severity_model": public_meta(self.severity.meta), "sbert_model": self.duplicates.embedder.name or None},
         }
+
+
+def public_meta(meta: dict) -> dict:
+    """Model metadata as any signed-in user may see it: the training set by name, not by its path on the server."""
+    if isinstance(meta.get("dataset"), str):
+        # PureWindowsPath splits on both separators, so paths recorded on either system reduce to their last part.
+        meta = meta | {"dataset": PureWindowsPath(meta["dataset"]).name or meta["dataset"]}
+    return meta
 
 
 engine = AIEngine()

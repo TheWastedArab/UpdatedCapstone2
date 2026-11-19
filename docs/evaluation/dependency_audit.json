@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-11-19",
+  "tools": {
+    "backend": "pip-audit (PyPI advisory database), installed packages of backend/.venv",
+    "extension": "npm audit (GitHub advisory database)"
+  },
+  "backend": {
+    "packages": 108,
+    "vulnerable_after_fix": 0,
+    "found_and_fixed": "setuptools 65.5.0, installed with the virtual environment and not a project dependency: 5 advisories; upgraded, and the Dockerfile now upgrades pip and setuptools before installing"
+  },
+  "extension": {
+    "shipped_dependencies_vulnerable": 0,
+    "found_and_fixed": "3 moderate advisories in build-time tooling only (@vscode/vsce through glob GHSA-3g3m-2fjr-6pw4 and minimatch GHSA-g3hv-75wg-m249); @vscode/vsce upgraded to 4.1.1 with glob and minimatch overridden to patched versions; packaging verified",
+    "vulnerable_after_fix": 0
+  }
+}

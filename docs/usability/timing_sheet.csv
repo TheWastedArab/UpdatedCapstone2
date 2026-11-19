@@ -1,0 +1,6 @@
+participant,group,vscode_years,task,seconds,paused_seconds,completion,errors,notes
+EXAMPLE,developer,3,1,95,20,1,0,found Create an account link quickly
+EXAMPLE,developer,3,2,110,0,1,1,looked for the form in the command palette first
+EXAMPLE,developer,3,3,40,0,1,0,used search
+EXAMPLE,developer,3,4,50,0,0.5,0,did not see the Watch toggle until the card was re-read
+EXAMPLE,developer,3,5,25,0,1,0,

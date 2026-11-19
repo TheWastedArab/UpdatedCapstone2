@@ -18,12 +18,15 @@ met, that is stated, with the measured value.
 | Search and filter over 50,000 bugs | ≤ 2 s | 0.28 s (worst p95, 20 users at once) | Yes |
 | TLS 1.2 or later only (NFR-05) | TLS ≥ 1.2 | 1.0 and 1.1 refused, 1.2 and 1.3 accepted | Yes |
 | Accessibility (NFR-12) | WCAG 2.1 AA | 0 axe violations on 8 screens × 3 themes; 48/48 controls reachable by keyboard | Partly |
+| Security scans (NFR-07) | no high or medium findings | ZAP: 0 high, 0 medium, 2 low (by design); dependencies: 0 known vulnerabilities after upgrades | Yes |
 | 50 simultaneous reports within 10% of baseline | ≤ +10% | see "System level" | Partly |
-| Backend test coverage | ≥ 70% | 94% (57 tests, SQLite and PostgreSQL) | Yes |
+| Backend test coverage | ≥ 70% | 94% (58 tests, SQLite and PostgreSQL) | Yes |
 | REST API documented in OpenAPI 3.0 | all endpoints | 46 paths, `docs/openapi.json` | Yes |
 
-Not measured: the five-participant usability study for NFR-11 (it needs people), and the
-99% availability target of NFR-09 (it needs a deployment observed over time).
+Not measured: the five-participant usability study for NFR-11 (it needs people; the kit to run
+it is in `docs/usability/`), the screen-reader test for NFR-12 (checklist in
+`docs/accessibility/nvda_checklist.md`), and the 99% availability target of NFR-09 (it needs a
+deployment observed over time).
 
 ## Datasets
 
@@ -222,6 +225,10 @@ colour contrast automatically on three screens (report form, dashboard, bug deta
 text sits over a chart or a layered background, and left it for manual review. All 48 interactive controls on it are reached by Tab and all show a visible
 focus outline. The audit found one defect, now fixed: the date field's calendar button took
 focus without an outline. Not done: a test with a screen reader, and the usability study.
+The screen-reader test is written out as a 38-item NVDA checklist mapped to WCAG success
+criteria (`docs/accessibility/nvda_checklist.md`). Preparing it found one defect, now fixed:
+the bug page computed "N of 3 classifiers agreed" from the confidence, so a 3-of-4 agreement
+of the four-classifier model was shown as "2 of 3".
 
 ## Security (NFR-04 to NFR-07)
 
@@ -229,5 +236,25 @@ Covered by automated tests in `backend/tests/`: bcrypt password storage, idle se
 403 for non-members with no difference between "forbidden" and "does not exist", input
 validation, SQL and markup stored inertly, upload type and content checks, path traversal in
 file names. The webview inserts all user text as text nodes under a strict content security
-policy. Not done: a third-party penetration test, and Snyk scanning (the CI job is present
-and runs once a `SNYK_TOKEN` secret is added to the repository).
+policy.
+
+**Dynamic scan (OWASP ZAP 2.17.0).** Automation-framework run against the API with trained
+models and PostgreSQL, all 59 operations imported from `docs/openapi.json`, passive and
+active scan with the default policy, signed in as an Administrator (logout, password change
+and deactivating the scanning account excluded). File: `zap_scan.json`. Result: no high or
+medium alerts. Two low alerts, both by design: "XSS weakness (persistent in JSON response)",
+because the API returns submitted text unchanged as `application/json` with `nosniff` and
+`no-store`, and the only client renders it as text nodes; and a Unix timestamp, which is the
+version tag of the duplicate model. Reading the scan's responses found one real issue that
+ZAP does not flag, now fixed: `GET /ai/status` showed every signed-in user the training-set
+path on the server (`..\dataaw\zenodo_eclipse`); it now gives only the dataset name.
+
+**Dependency audit.** `pip-audit` over the 108 installed backend packages and `npm audit` over
+the extension (`dependency_audit.json`). The backend's only finding was setuptools 65.5.0
+(5 advisories), the version bundled with the Python 3.12 image; the Dockerfile now upgrades it.
+The extension ships no runtime dependencies; three moderate advisories in the build-time
+packager (`@vscode/vsce` via `glob` and `minimatch`) were removed by moving to vsce 4.1.1 with
+patched versions pinned through `overrides`. vsce 4 needs Node.js 22, which CI now uses.
+After the changes both audits report no known vulnerabilities.
+
+Not done: a third-party penetration test.
