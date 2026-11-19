@@ -17,3 +17,5 @@ joblib>=1.4
 pandas>=2.2
 sentence-transformers>=3.0
 torch>=2.3
+# torch installs setuptools; 79.x has two advisories (Snyk SNYK-PYTHON-SETUPTOOLS-17895075, -21689156)
+setuptools>=84.1

@@ -98,7 +98,7 @@ jobs:
           npm install -g snyk
       - name: Snyk Open Source, backend
         if: ${{ env.SNYK_TOKEN != '' && !cancelled() }}
-        run: snyk test --file=backend/requirements.txt --package-manager=pip --command=python
+        run: snyk test --file=backend/requirements.txt --package-manager=pip --command=python --policy-path=backend
       - name: Snyk Open Source, extension
         if: ${{ env.SNYK_TOKEN != '' && !cancelled() }}
         run: snyk test --file=extension/package-lock.json
