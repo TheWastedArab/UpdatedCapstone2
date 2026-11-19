@@ -1,0 +1,122 @@
+{
+  "measured_at": "2026-11-19T14:15:42+00:00",
+  "bugs_in_project": 50000,
+  "target_ms": 2000,
+  "worst_p95_ms": 277.8,
+  "target_met": true,
+  "queries": {
+    "keyword": {
+      "params": {
+        "q": "checkout timeout"
+      },
+      "matches": 34,
+      "single_user": {
+        "n": 30,
+        "median_ms": 10.0,
+        "p95_ms": 14.1,
+        "max_ms": 15.7
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 194.6,
+        "p95_ms": 277.8,
+        "max_ms": 277.8
+      }
+    },
+    "keyword, rare term": {
+      "params": {
+        "q": "invoice rounding"
+      },
+      "matches": 164,
+      "single_user": {
+        "n": 30,
+        "median_ms": 11.9,
+        "p95_ms": 30.1,
+        "max_ms": 76.0
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 149.2,
+        "p95_ms": 160.0,
+        "max_ms": 160.0
+      }
+    },
+    "keyword + status + severity": {
+      "params": {
+        "q": "crash",
+        "status": [
+          "Open",
+          "In Progress"
+        ],
+        "severity": "Critical"
+      },
+      "matches": 490,
+      "single_user": {
+        "n": 30,
+        "median_ms": 15.0,
+        "p95_ms": 18.9,
+        "max_ms": 19.6
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 152.3,
+        "p95_ms": 158.5,
+        "max_ms": 158.5
+      }
+    },
+    "keyword + date range": {
+      "params": {
+        "q": "login",
+        "created_from": "2026-10-29"
+      },
+      "matches": 353,
+      "single_user": {
+        "n": 30,
+        "median_ms": 38.5,
+        "p95_ms": 44.0,
+        "max_ms": 44.6
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 191.1,
+        "p95_ms": 213.1,
+        "max_ms": 213.1
+      }
+    },
+    "filters only (status, severity)": {
+      "params": {
+        "status": "Open",
+        "severity": "High"
+      },
+      "matches": 1993,
+      "single_user": {
+        "n": 30,
+        "median_ms": 12.4,
+        "p95_ms": 15.5,
+        "max_ms": 16.6
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 136.4,
+        "p95_ms": 144.4,
+        "max_ms": 144.4
+      }
+    },
+    "no filter, first page": {
+      "params": {},
+      "matches": 50000,
+      "single_user": {
+        "n": 30,
+        "median_ms": 17.1,
+        "p95_ms": 20.3,
+        "max_ms": 21.7
+      },
+      "20_users_at_once": {
+        "n": 20,
+        "median_ms": 140.9,
+        "p95_ms": 152.2,
+        "max_ms": 152.2
+      }
+    }
+  }
+}

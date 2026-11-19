@@ -3,13 +3,14 @@
 A bug tracker that lives inside Visual Studio Code. Reporters file bugs from the editor, and three
 AI modules triage each report as it arrives:
 
-- **Severity classification** – TF-IDF features into an ensemble of a linear SVM, a Random Forest and
-  Naive Bayes (Low / Medium / High / Critical).
+- **Severity classification** – four classifiers (a linear SVM, a Random Forest and Naive Bayes over
+  TF-IDF features, and a fine-tuned MiniLM encoder) combined by a logistic regression learned on
+  held-out data (Low / Medium / High / Critical).
 - **Duplicate detection** – two phases: BM25 keyword retrieval of 100 candidates, then re-ranking with
   Sentence-BERT (`all-MiniLM-L6-v2`, optionally fine-tuned on duplicate pairs). Shown live while the
   report is being typed.
 - **Developer recommendation** – a CNN-LSTM over the report text plus severity and duplicate features,
-  with a rule-based cold-start mode until a project has enough resolved history (FR-25 to FR-29).
+  blended with a TF-IDF and linear SVM ranker, with a rule-based cold-start mode until a project has enough resolved history (FR-25 to FR-29).
 
 Around them: projects and role-based access control, developer profiles, comments and attachments,
 watchers, email / in-app / ntfy push notifications, a full audit trail and an OpenAPI 3.0 REST API.
@@ -34,7 +35,7 @@ backend/
   alembic/        database migrations
   ml/             dataset preparation, training and evaluation scripts
   scripts/        seed data, smoke test, load tests
-  tests/          pytest suite (57 tests, 95% coverage)
+  tests/          pytest suite (57 tests, 94% coverage)
 extension/        the VS Code extension
 docs/             OpenAPI document, evaluation results and logs
 data/raw/         datasets (not committed, see "Datasets")
@@ -158,10 +159,22 @@ python -m ml.train_assignment --data ../data/raw/zenodo_eclipse --ood ../data/ra
 # System latency and load (server must be running)
 python -m scripts.seed --bugs 2000
 python -m scripts.loadtest http://127.0.0.1:8000
+
+# Search and filters over 50,000 bugs (FR-07; seed an empty database first)
+python -m scripts.seed --bugs 50000
+python -m scripts.search_volume http://127.0.0.1:8000
+```
+
+The accessibility audit (NFR-12) runs axe-core on every webview screen in three themes. It needs
+Playwright and axe (`npm install --no-save playwright @axe-core/playwright` and
+`npx playwright install chromium`) and the webview harness (`python -m scripts.webview_harness`):
+
+```bash
+cd extension && node scripts/a11y-audit.js http://127.0.0.1:8000
 ```
 
 Every script takes `--help`, and the training scripts take `--synthetic` to check the pipeline without data. Results go to `docs/evaluation/`. The server picks up
-`models/severity.joblib` and `models/sbert-duplicates/` on its next start. The per-project
+`models/severity.joblib`, `models/severity-encoder/` and `models/sbert-duplicates/` on its next start. The per-project
 assignment model is trained by the server itself once a project has 100 verified resolutions
 (`python -m app.cli retrain` forces a sweep).
 

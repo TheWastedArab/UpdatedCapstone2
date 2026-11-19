@@ -133,7 +133,7 @@ def with_assignees(frame: pd.DataFrame, min_bugs: int = 20) -> pd.DataFrame:
     """Rows with a real developer who fixed at least min_bugs reports, in chronological order."""
     require(frame, "assignee", "developer assignment")
     assigned = frame[frame["assignee"].notna()].copy()
-    if assigned["resolution"].notna().any():
+    if "resolution" in assigned and assigned["resolution"].notna().any():
         # Only bugs that were actually fixed tell us who the right developer was.
         assigned = assigned[assigned["resolution"].astype(str).str.upper() == "FIXED"]
     assigned["assignee"] = assigned["assignee"].astype(str).str.strip().str.lower()

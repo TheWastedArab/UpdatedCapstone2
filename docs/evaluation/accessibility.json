@@ -1,0 +1,171 @@
+{
+  "checked_at": "2026-11-19T14:17:56.319Z",
+  "standard": "WCAG 2.1 A and AA rules of axe-core",
+  "themes": {
+    "light": {
+      "screens": {
+        "sign in": {
+          "rules_passed": 20,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug list": {
+          "rules_passed": 22,
+          "needs_review": [],
+          "violations": []
+        },
+        "report form": {
+          "rules_passed": 21,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "dashboard": {
+          "rules_passed": 23,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "notifications": {
+          "rules_passed": 16,
+          "needs_review": [],
+          "violations": []
+        },
+        "projects and team": {
+          "rules_passed": 22,
+          "needs_review": [],
+          "violations": []
+        },
+        "administration": {
+          "rules_passed": 21,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug detail": {
+          "rules_passed": 26,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        }
+      },
+      "keyboard": {
+        "interactive_elements": 48,
+        "reached_by_tab": 48,
+        "without_visible_focus": 0
+      }
+    },
+    "dark modern": {
+      "screens": {
+        "sign in": {
+          "rules_passed": 21,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug list": {
+          "rules_passed": 23,
+          "needs_review": [],
+          "violations": []
+        },
+        "report form": {
+          "rules_passed": 22,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "dashboard": {
+          "rules_passed": 24,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "notifications": {
+          "rules_passed": 17,
+          "needs_review": [],
+          "violations": []
+        },
+        "projects and team": {
+          "rules_passed": 23,
+          "needs_review": [],
+          "violations": []
+        },
+        "administration": {
+          "rules_passed": 22,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug detail": {
+          "rules_passed": 27,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        }
+      },
+      "keyboard": {
+        "interactive_elements": 48,
+        "reached_by_tab": 48,
+        "without_visible_focus": 0
+      }
+    },
+    "high contrast": {
+      "screens": {
+        "sign in": {
+          "rules_passed": 21,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug list": {
+          "rules_passed": 23,
+          "needs_review": [],
+          "violations": []
+        },
+        "report form": {
+          "rules_passed": 22,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "dashboard": {
+          "rules_passed": 24,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        },
+        "notifications": {
+          "rules_passed": 17,
+          "needs_review": [],
+          "violations": []
+        },
+        "projects and team": {
+          "rules_passed": 23,
+          "needs_review": [],
+          "violations": []
+        },
+        "administration": {
+          "rules_passed": 22,
+          "needs_review": [],
+          "violations": []
+        },
+        "bug detail": {
+          "rules_passed": 27,
+          "needs_review": [
+            "color-contrast"
+          ],
+          "violations": []
+        }
+      },
+      "keyboard": {
+        "interactive_elements": 48,
+        "reached_by_tab": 48,
+        "without_visible_focus": 0
+      }
+    }
+  }
+}

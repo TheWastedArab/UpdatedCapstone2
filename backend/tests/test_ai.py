@@ -1,14 +1,19 @@
 """AI triage: duplicates, severity, developer profiles, cold start and recommendations (FR-10 to FR-12, FR-20 to FR-29)."""
+import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 
 import joblib
 import numpy as np
+from sklearn.linear_model import LogisticRegression
 import pytest
 
 from app.ai import cnn_lstm
 from app.ai.duplicates import BM25Index
 from app.ai.engine import engine
-from app.ai.severity import MODEL_FILENAME, SeverityClassifier, build_ensemble, classify_by_rules, vote_share
+from app.ai.severity import (
+    MODEL_FILENAME, EncoderClassifier, SeverityClassifier, build_ensemble, classify_by_rules, member_scores, vote_share,
+)
 from app.ai.text import extract_keywords, map_canonical, severity_rank, tokenize
 from app.config import get_settings
 from app.database import utcnow
@@ -98,7 +103,7 @@ def test_rule_based_severity_fallback():
     assert classify_by_rules("Improve the onboarding flow")[0] == "Medium"
 
 
-def test_trained_severity_ensemble_is_loaded_and_used(tmp_path):
+def test_trained_severity_ensemble_is_loaded_and_used(tmp_path, monkeypatch):
     samples = {
         "Critical": "system crash data loss corruption outage security breach",
         "High": "exception error failure broken feature cannot save timeout",
@@ -122,6 +127,50 @@ def test_trained_severity_ensemble_is_loaded_and_used(tmp_path):
     # a corrupt file degrades to rules instead of stopping the service
     (tmp_path / MODEL_FILENAME).write_bytes(b"not a model")
     assert classifier.load(tmp_path) is False and classifier.mode == "rules"
+
+    # The four-classifier bundle: the TF-IDF scores and the encoder's logits are combined by a
+    # learned logistic regression plus per-class offsets. A stand-in replaces the fine-tuned
+    # encoder so the test needs no download; it scores by keyword, like a confident encoder.
+    classes = sorted(samples)
+
+    class StandInEncoder(EncoderClassifier):
+        def __init__(self):  # no transformer is loaded
+            self.batch_sizes, self.fail = [], False
+
+        def to(self, device):
+            return self
+
+        def logits(self, batch):
+            self.batch_sizes.append(len(batch))
+            time.sleep(0.02)  # long enough for reports arriving together to share a forward pass
+            if self.fail:
+                raise RuntimeError("encoder unavailable")
+            return np.array([[3.0 * sum(w in t for w in samples[c].split()) for c in classes] for t in batch])
+
+    encoder = StandInEncoder()
+    scores, _ = member_scores(pipeline, texts)
+    stack = LogisticRegression(max_iter=2000).fit(np.hstack([encoder.logits(texts), scores]), labels)
+    joblib.dump({"pipeline": pipeline, "stack": stack, "bias": [0.0, 0.0, 0.5, 0.0], "encoder_dir": "severity-encoder",
+                 "meta": {"trained_at": "test"}}, tmp_path / MODEL_FILENAME)
+    (tmp_path / "severity-encoder").mkdir()
+    monkeypatch.setattr(EncoderClassifier, "load", classmethod(lambda cls, directory, n: encoder))
+    assert classifier.load(tmp_path) is True and classifier.stack is not None
+    label, confidence, source = classifier.predict("Crash", "data loss and corruption after the outage")
+    assert (label, source) == ("Critical", "model") and confidence in (0.25, 0.5, 0.75, 1.0)  # agreement of four classifiers
+    assert classifier.predict("Tooltip typo", "cosmetic spelling wording alignment")[0] == "Low"
+
+    # Reports submitted at the same moment share one forward pass and get the answers they
+    # would have got alone; an encoder failure reaches every report in the batch.
+    reports = [("Crash", "data loss and corruption after the outage"), ("Tooltip typo", "cosmetic spelling wording alignment")] * 10
+    alone = [classifier.predict(*r) for r in reports]
+    encoder.batch_sizes.clear()
+    with ThreadPoolExecutor(len(reports)) as pool:
+        assert list(pool.map(lambda r: classifier.predict(*r), reports)) == alone
+    assert sum(encoder.batch_sizes) == len(reports) and max(encoder.batch_sizes) > 1
+    encoder.fail = True
+    with ThreadPoolExecutor(4) as pool:
+        failures = [f.exception() for f in [pool.submit(classifier.predict, *r) for r in reports[:4]]]
+    assert all(isinstance(e, RuntimeError) for e in failures)
 
 
 def test_configured_severity_labels_are_applied(world):
@@ -379,6 +428,16 @@ def test_cnn_lstm_learns_and_round_trips():
     # an explicit validation set with an unseen developer is handled
     _, metrics = cnn_lstm.train_model(texts, metas, labels, epochs=1, device="cpu", val_data=(texts[:4] + ["x"], metas[:5], labels[:4] + [999]))
     assert metrics["validation_samples"] == 4
+    # the text ranker is trained alongside and blended in with the weight chosen on validation
+    assert model.ranker is not None and model.blend_weight in cnn_lstm.BLEND_WEIGHTS
+    assert metrics["blend"]["weight"] in cnn_lstm.BLEND_WEIGHTS and set(metrics["blend"]["validation_mean_rank_by_weight"]) == {
+        str(w) for w in cnn_lstm.BLEND_WEIGHTS}
+    blended = model.predict_proba(["refund failed at checkout"], [cnn_lstm.encode_meta(2, False)])
+    alone = model.predict_proba(["refund failed at checkout"], [cnn_lstm.encode_meta(2, False)], cnn_only=True)
+    assert abs(blended.sum() - 1.0) < 1e-5 and blended[0].argmax() == alone[0].argmax() == 0
+    # a bundle without a text ranker (trained before it existed) serves the CNN-LSTM alone
+    old_blob, _ = cnn_lstm.train_model(texts, metas, labels, epochs=1, device="cpu", svm_blend=False)
+    assert cnn_lstm.AssignmentModel(old_blob).ranker is None
 
 
 # ---- service-level ------------------------------------------------------------

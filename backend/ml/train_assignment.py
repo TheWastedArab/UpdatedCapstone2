@@ -1,4 +1,8 @@
-"""Train and evaluate the CNN-LSTM developer assignment model (Section 3.6.3).
+"""Train and evaluate the developer assignment model (Section 3.6.3).
+
+The deployed model is the CNN-LSTM blended with a TF-IDF + linear SVM ranker, the
+blend weight chosen on each training window's validation tail (app/ai/cnn_lstm.py).
+"deployed" is that blend; "cnn_lstm" is the same trained network without the ranker.
 
     python -m ml.train_assignment --data ../data/raw/zenodo_eclipse
     python -m ml.train_assignment --data ../data/raw/zenodo_eclipse --ood ../data/raw/msr2013/mozilla.csv
@@ -56,7 +60,7 @@ def prepare(frame: pd.DataFrame, max_rows: int = 0):
     known = set(frame["bug_id"])
     metas = [cnn_lstm.encode_meta(SEVERITY_RANK.get(level), bool(dup == dup and dup in known))
              for level, dup in zip(raw, frame["dup_id"])]
-    recorded = pd.to_numeric(frame["reassignments"], errors="coerce")
+    recorded = pd.to_numeric(frame["reassignments"], errors="coerce") if "reassignments" in frame else pd.Series(dtype=float)
     history = None
     if recorded.notna().any():
         history = {"mean_recorded_reassignments": round(float(recorded.mean()), 3), "share_reassigned": round(float((recorded > 0).mean()), 3)}
@@ -95,7 +99,10 @@ def run_fold(train, test, min_bugs: int, epochs: int, batch_size: int, device: s
     started = time.perf_counter()
     probabilities = np.concatenate([model.predict_proba(t_texts[i:i + 256], t_metas[i:i + 256]) for i in range(0, len(covered), 256)])
     result["mean_inference_ms"] = round((time.perf_counter() - started) / len(covered) * 1000, 3)
-    result["cnn_lstm"] = summarise(ranks_of(probabilities, target))
+    result["deployed"] = summarise(ranks_of(probabilities, target))
+    result["blend_weight"] = model.blend_weight
+    cnn_only = np.concatenate([model.predict_proba(t_texts[i:i + 256], t_metas[i:i + 256], cnn_only=True) for i in range(0, len(covered), 256)])
+    result["cnn_lstm"] = summarise(ranks_of(cnn_only, target))
     # Baselines, on exactly the same bugs and the same candidate developers.
     n = len(model.classes)
     result["random"] = {"mnr": round((n - 1) / 2, 3), **{f"top{k}": round(min(1.0, k / n), 4) for k in (1, 3, 5)}}
@@ -122,20 +129,23 @@ def rolling(texts, metas, labels, *, window: int, min_bugs: int, epochs: int, ba
         fold, blob = run_fold((texts[first:start], metas[first:start], labels[first:start]),
                               (texts[start:stop], metas[start:stop], labels[start:stop]), min_bugs, epochs, batch_size, device)
         folds.append(fold)
-        shown = fold.get("cnn_lstm", {})
+        shown = fold.get("deployed", {})
         print(f"  slice {k:>2}: train {fold['train_bugs']:>6}, {fold['developers']:>4} developers, coverage {fold['coverage']:.0%}, "
               f"top1 {shown.get('top1')}, top5 {shown.get('top5')}, MNR {shown.get('mnr')} (random {fold.get('random', {}).get('mnr')})", flush=True)
-    scored = [f for f in folds if "cnn_lstm" in f]
+    scored = [f for f in folds if "deployed" in f]
     weights = np.array([f["test_bugs"] * f["coverage"] for f in scored])
 
     def average(method: str, key: str) -> float:
         return round(float(np.average([f[method][key] for f in scored], weights=weights)), 4)
 
-    methods = {m: {key: average(m, key) for key in ("top1", "top3", "top5", "mnr")} for m in ("cnn_lstm", "tfidf_svm", "most_active_first", "random")}
-    reduction = 1 - methods["cnn_lstm"]["mnr"] / methods["random"]["mnr"]
+    methods = {m: {key: average(m, key) for key in ("top1", "top3", "top5", "mnr")}
+               for m in ("deployed", "cnn_lstm", "tfidf_svm", "most_active_first", "random")}
+    reduction = 1 - methods["deployed"]["mnr"] / methods["random"]["mnr"]
     summary = {
         "methods": methods, "mnr_reduction_vs_random": round(reduction, 4),
-        "mnr_reduction_vs_most_active_first": round(1 - methods["cnn_lstm"]["mnr"] / methods["most_active_first"]["mnr"], 4),
+        "mnr_reduction_vs_most_active_first": round(1 - methods["deployed"]["mnr"] / methods["most_active_first"]["mnr"], 4),
+        "cnn_lstm_alone_mnr_reduction_vs_random": round(1 - methods["cnn_lstm"]["mnr"] / methods["random"]["mnr"], 4),
+        "blend_weights_chosen": [f.get("blend_weight") for f in folds],
         "mean_coverage": round(float(np.mean([f["coverage"] for f in folds])), 4),
         "mean_developers": round(float(np.mean([f["developers"] for f in folds])), 1),
         "target_mnr_reduction": TARGET_MNR_REDUCTION, "target_met": reduction >= TARGET_MNR_REDUCTION, "slices": folds,

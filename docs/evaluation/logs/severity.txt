@@ -2,13 +2,17 @@
   10-fold CV, SVM C=0.1: 0.7557 +/- 0.0024
   10-fold CV, SVM C=0.5: 0.7268 +/- 0.0023
   10-fold CV, SVM C=1.0: 0.7144 +/- 0.0021
+  encoder epoch 1: held-out macro F1 0.4008
+  encoder epoch 2: held-out macro F1 0.4279
+  encoder epoch 3: held-out macro F1 0.4345
 
-Held-out accuracy 0.7665 (majority-class baseline 0.7924, target 0.85)
-macro F1 0.3726, weighted F1 0.7307; members {'svm': 0.755, 'random_forest': 0.7952, 'naive_bayes': 0.6576}
+Held-out accuracy 0.7737 (majority-class baseline 0.7924, target 0.85)
+macro F1 0.4296, weighted F1 0.7487; members {'svm': 0.7571, 'random_forest': 0.7949, 'naive_bayes': 0.6643, 'encoder': 0.7122}
+Three-classifier vote for comparison: accuracy 0.7685, macro F1 0.3653
 Confusion matrix (rows = true, columns = predicted): ['Low', 'Medium', 'High', 'Critical']
-  Low      [ 250 2228   37   34]
-  Medium   [  376 28637   686  1232]
-  High     [  42 2822  385  467]
-  Critical [  11 1028  150  651]
+  Low      [ 453 2044   34   18]
+  Medium   [  526 28384  1036   985]
+  High     [  12 2620  664  420]
+  Critical [  2 926 212 700]
 
 Model saved to C:\Users\muham\Desktop\Capstone 2 Implementation\models\severity.joblib; report in C:\Users\muham\Desktop\Capstone 2 Implementation\docs\evaluation

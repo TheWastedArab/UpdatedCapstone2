@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-11-19T14:17:03Z",
+  "requirement": "NFR-05: TLS 1.2 or later for all traffic",
+  "setup": "Caddy v2.11.9 with the TLS settings of the repository Caddyfile (protocols tls1.2 tls1.3), certificate from Caddy's internal CA because no public domain was available, reverse proxy to the backend; probed with OpenSSL 3.5.5",
+  "results": {
+    "TLS 1.0": "refused by the server (alert: protocol version)",
+    "TLS 1.1": "refused by the server (alert: protocol version)",
+    "TLS 1.2": "accepted, ECDHE-ECDSA-AES128-GCM-SHA256",
+    "TLS 1.3": "accepted, TLS_AES_128_GCM_SHA256",
+    "plain HTTP": "redirected to HTTPS (308)",
+    "API health over HTTPS": "200"
+  },
+  "not_covered": "a public certificate from Let's Encrypt, which needs a registered domain"
+}

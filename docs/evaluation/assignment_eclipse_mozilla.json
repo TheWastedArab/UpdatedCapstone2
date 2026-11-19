@@ -1,11 +1,17 @@
 {
-  "evaluated_at": "2026-11-17T04:07:01+00:00",
+  "evaluated_at": "2026-11-19T14:48:30+00:00",
   "dataset": "..\\data\\raw\\zenodo_eclipse",
   "protocol": "rolling chronological, 10 slices, training window 20000 bugs, developers with >= 10 fixes in the window",
   "fixed_bugs": 89354,
   "recorded_history": null,
   "epochs": 8,
   "methods": {
+    "deployed": {
+      "top1": 0.2659,
+      "top3": 0.4602,
+      "top5": 0.5602,
+      "mnr": 13.3088
+    },
     "cnn_lstm": {
       "top1": 0.1952,
       "top3": 0.3679,
@@ -31,8 +37,21 @@
       "mnr": 57.5951
     }
   },
-  "mnr_reduction_vs_random": 0.6907,
-  "mnr_reduction_vs_most_active_first": 0.4745,
+  "mnr_reduction_vs_random": 0.7689,
+  "mnr_reduction_vs_most_active_first": 0.6074,
+  "cnn_lstm_alone_mnr_reduction_vs_random": 0.6907,
+  "blend_weights_chosen": [
+    0.75,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.75,
+    0.75,
+    0.75
+  ],
   "mean_coverage": 0.8418,
   "mean_developers": 116.6,
   "target_mnr_reduction": 0.2,
@@ -43,7 +62,14 @@
       "developers": 65,
       "test_bugs": 8123,
       "coverage": 0.9008,
-      "mean_inference_ms": 0.428,
+      "mean_inference_ms": 0.553,
+      "deployed": {
+        "top1": 0.29,
+        "top3": 0.5135,
+        "top5": 0.6199,
+        "mnr": 8.633
+      },
+      "blend_weight": 0.75,
       "cnn_lstm": {
         "top1": 0.2086,
         "top3": 0.3905,
@@ -74,7 +100,14 @@
       "developers": 89,
       "test_bugs": 8123,
       "coverage": 0.7734,
-      "mean_inference_ms": 0.411,
+      "mean_inference_ms": 0.611,
+      "deployed": {
+        "top1": 0.2604,
+        "top3": 0.4651,
+        "top5": 0.5662,
+        "mnr": 11.236
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.2049,
         "top3": 0.4048,
@@ -97,7 +130,7 @@
         "top1": 0.2759,
         "top3": 0.4632,
         "top5": 0.55,
-        "mnr": 13.719
+        "mnr": 13.72
       }
     },
     {
@@ -105,7 +138,14 @@
       "developers": 118,
       "test_bugs": 8123,
       "coverage": 0.9237,
-      "mean_inference_ms": 0.427,
+      "mean_inference_ms": 0.652,
+      "deployed": {
+        "top1": 0.3112,
+        "top3": 0.5363,
+        "top5": 0.6439,
+        "mnr": 9.447
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.2486,
         "top3": 0.4662,
@@ -136,7 +176,14 @@
       "developers": 115,
       "test_bugs": 8123,
       "coverage": 0.8944,
-      "mean_inference_ms": 0.402,
+      "mean_inference_ms": 0.686,
+      "deployed": {
+        "top1": 0.3082,
+        "top3": 0.5092,
+        "top5": 0.6171,
+        "mnr": 11.081
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.246,
         "top3": 0.4345,
@@ -167,7 +214,14 @@
       "developers": 123,
       "test_bugs": 8123,
       "coverage": 0.88,
-      "mean_inference_ms": 0.397,
+      "mean_inference_ms": 0.672,
+      "deployed": {
+        "top1": 0.2549,
+        "top3": 0.4417,
+        "top5": 0.5367,
+        "mnr": 12.843
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.2124,
         "top3": 0.3902,
@@ -198,7 +252,14 @@
       "developers": 128,
       "test_bugs": 8123,
       "coverage": 0.8923,
-      "mean_inference_ms": 0.385,
+      "mean_inference_ms": 0.7,
+      "deployed": {
+        "top1": 0.257,
+        "top3": 0.4485,
+        "top5": 0.5563,
+        "mnr": 14.382
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.2035,
         "top3": 0.3818,
@@ -221,7 +282,7 @@
         "top1": 0.2758,
         "top3": 0.4603,
         "top5": 0.5552,
-        "mnr": 19.256
+        "mnr": 19.255
       }
     },
     {
@@ -229,7 +290,14 @@
       "developers": 128,
       "test_bugs": 8123,
       "coverage": 0.9122,
-      "mean_inference_ms": 0.401,
+      "mean_inference_ms": 0.646,
+      "deployed": {
+        "top1": 0.2622,
+        "top3": 0.4933,
+        "top5": 0.596,
+        "mnr": 11.214
+      },
+      "blend_weight": 0.5,
       "cnn_lstm": {
         "top1": 0.2051,
         "top3": 0.419,
@@ -260,7 +328,14 @@
       "developers": 122,
       "test_bugs": 8123,
       "coverage": 0.7192,
-      "mean_inference_ms": 0.404,
+      "mean_inference_ms": 0.657,
+      "deployed": {
+        "top1": 0.2535,
+        "top3": 0.4223,
+        "top5": 0.5303,
+        "mnr": 14.027
+      },
+      "blend_weight": 0.75,
       "cnn_lstm": {
         "top1": 0.1614,
         "top3": 0.303,
@@ -291,7 +366,14 @@
       "developers": 132,
       "test_bugs": 8123,
       "coverage": 0.7377,
-      "mean_inference_ms": 0.39,
+      "mean_inference_ms": 0.607,
+      "deployed": {
+        "top1": 0.2228,
+        "top3": 0.3605,
+        "top5": 0.4423,
+        "mnr": 18.972
+      },
+      "blend_weight": 0.75,
       "cnn_lstm": {
         "top1": 0.1075,
         "top3": 0.2069,
@@ -322,7 +404,14 @@
       "developers": 146,
       "test_bugs": 8124,
       "coverage": 0.7845,
-      "mean_inference_ms": 0.384,
+      "mean_inference_ms": 0.664,
+      "deployed": {
+        "top1": 0.2205,
+        "top3": 0.373,
+        "top5": 0.4499,
+        "mnr": 23.561
+      },
+      "blend_weight": 0.75,
       "cnn_lstm": {
         "top1": 0.1232,
         "top3": 0.225,
@@ -357,6 +446,12 @@
       "share_reassigned": 1.0
     },
     "methods": {
+      "deployed": {
+        "top1": 0.1641,
+        "top3": 0.267,
+        "top5": 0.3237,
+        "mnr": 49.453
+      },
       "cnn_lstm": {
         "top1": 0.1095,
         "top3": 0.1887,
@@ -382,8 +477,21 @@
         "mnr": 130.7101
       }
     },
-    "mnr_reduction_vs_random": 0.5125,
-    "mnr_reduction_vs_most_active_first": 0.1729,
+    "mnr_reduction_vs_random": 0.6217,
+    "mnr_reduction_vs_most_active_first": 0.3581,
+    "cnn_lstm_alone_mnr_reduction_vs_random": 0.5125,
+    "blend_weights_chosen": [
+      0.5,
+      0.5,
+      0.75,
+      0.75,
+      0.5,
+      0.5,
+      0.5,
+      0.75,
+      0.5,
+      0.5
+    ],
     "mean_coverage": 0.6798,
     "mean_developers": 259.7,
     "target_mnr_reduction": 0.2,
@@ -394,7 +502,14 @@
         "developers": 102,
         "test_bugs": 6323,
         "coverage": 0.6193,
-        "mean_inference_ms": 0.327,
+        "mean_inference_ms": 0.368,
+        "deployed": {
+          "top1": 0.1233,
+          "top3": 0.2298,
+          "top5": 0.3011,
+          "mnr": 24.732
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.0799,
           "top3": 0.1578,
@@ -425,7 +540,14 @@
         "developers": 178,
         "test_bugs": 6322,
         "coverage": 0.6115,
-        "mean_inference_ms": 0.336,
+        "mean_inference_ms": 0.396,
+        "deployed": {
+          "top1": 0.1073,
+          "top3": 0.2041,
+          "top5": 0.2571,
+          "mnr": 42.897
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.0732,
           "top3": 0.1526,
@@ -448,7 +570,7 @@
           "top1": 0.1136,
           "top3": 0.2196,
           "top5": 0.2773,
-          "mnr": 48.396
+          "mnr": 48.397
         }
       },
       {
@@ -456,7 +578,14 @@
         "developers": 266,
         "test_bugs": 6323,
         "coverage": 0.5398,
-        "mean_inference_ms": 0.335,
+        "mean_inference_ms": 0.44,
+        "deployed": {
+          "top1": 0.1403,
+          "top3": 0.1946,
+          "top5": 0.2209,
+          "mnr": 74.008
+        },
+        "blend_weight": 0.75,
         "cnn_lstm": {
           "top1": 0.1105,
           "top3": 0.1295,
@@ -487,7 +616,14 @@
         "developers": 336,
         "test_bugs": 6323,
         "coverage": 0.6712,
-        "mean_inference_ms": 0.324,
+        "mean_inference_ms": 0.486,
+        "deployed": {
+          "top1": 0.2151,
+          "top3": 0.307,
+          "top5": 0.3565,
+          "mnr": 72.214
+        },
+        "blend_weight": 0.75,
         "cnn_lstm": {
           "top1": 0.1331,
           "top3": 0.1977,
@@ -518,7 +654,14 @@
         "developers": 348,
         "test_bugs": 6322,
         "coverage": 0.7034,
-        "mean_inference_ms": 0.326,
+        "mean_inference_ms": 0.526,
+        "deployed": {
+          "top1": 0.1558,
+          "top3": 0.2584,
+          "top5": 0.3191,
+          "mnr": 58.586
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.1273,
           "top3": 0.2177,
@@ -549,7 +692,14 @@
         "developers": 281,
         "test_bugs": 6323,
         "coverage": 0.6641,
-        "mean_inference_ms": 0.325,
+        "mean_inference_ms": 0.512,
+        "deployed": {
+          "top1": 0.1867,
+          "top3": 0.2967,
+          "top5": 0.3565,
+          "mnr": 42.973
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.1419,
           "top3": 0.2393,
@@ -580,7 +730,14 @@
         "developers": 272,
         "test_bugs": 6323,
         "coverage": 0.761,
-        "mean_inference_ms": 0.329,
+        "mean_inference_ms": 0.498,
+        "deployed": {
+          "top1": 0.1783,
+          "top3": 0.2882,
+          "top5": 0.3487,
+          "mnr": 45.869
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.1297,
           "top3": 0.2255,
@@ -611,7 +768,14 @@
         "developers": 270,
         "test_bugs": 6322,
         "coverage": 0.7812,
-        "mean_inference_ms": 0.332,
+        "mean_inference_ms": 0.546,
+        "deployed": {
+          "top1": 0.2051,
+          "top3": 0.3353,
+          "top5": 0.4007,
+          "mnr": 43.232
+        },
+        "blend_weight": 0.75,
         "cnn_lstm": {
           "top1": 0.1075,
           "top3": 0.1952,
@@ -642,7 +806,14 @@
         "developers": 268,
         "test_bugs": 6323,
         "coverage": 0.7164,
-        "mean_inference_ms": 0.323,
+        "mean_inference_ms": 0.525,
+        "deployed": {
+          "top1": 0.1598,
+          "top3": 0.2585,
+          "top5": 0.313,
+          "mnr": 47.383
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.0898,
           "top3": 0.1627,
@@ -673,7 +844,14 @@
         "developers": 276,
         "test_bugs": 6323,
         "coverage": 0.7297,
-        "mean_inference_ms": 0.319,
+        "mean_inference_ms": 0.61,
+        "deployed": {
+          "top1": 0.1498,
+          "top3": 0.2625,
+          "top5": 0.321,
+          "mnr": 46.35
+        },
+        "blend_weight": 0.5,
         "cnn_lstm": {
           "top1": 0.0967,
           "top3": 0.1866,
@@ -696,7 +874,7 @@
           "top1": 0.2143,
           "top3": 0.3318,
           "top5": 0.3882,
-          "mnr": 62.639
+          "mnr": 62.638
         }
       }
     ]
