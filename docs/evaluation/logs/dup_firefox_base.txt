@@ -1,8 +1,9 @@
 Corpus 24824 reports, 2477 duplicates in 1506 groups, 709 queries from the newest 30% of groups
-BM25 index built in 4.5s
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 6111.12it/s]
+BM25 index built in 4.6s
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 8601.22it/s]
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Corpus embedded in 30.9s
-bm25_only         recall@1=0.3343  recall@5=0.4866  recall@10=0.5458  mrr=0.4056  map=0.2828  mean_ms_per_query=1.27
-bm25_plus_sbert   recall@1=0.4471  recall@5=0.6164  recall@10=0.6728  mrr=0.5251  map=0.3746  mean_ms_per_query=9.35
-Phase-1 ceiling (duplicate within top 100): 0.7602; target Recall@5 0.8: NOT met
+Corpus embedded in 31.3s
+709 queries, chronological: earlier reports only
+bm25_only         recall@1=0.3018  recall@5=0.4471  recall@10=0.519  mrr=0.3734  map=0.3025  mean_ms_per_query=1.3
+bm25_plus_sbert   recall@1=0.4161  recall@5=0.5882  recall@10=0.6403  mrr=0.4904  map=0.3946  mean_ms_per_query=9.34
+Phase-1 ceiling (duplicate within top 100): 0.7094; target Recall@5 0.8: NOT met

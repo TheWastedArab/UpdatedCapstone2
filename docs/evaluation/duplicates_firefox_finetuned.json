@@ -1,31 +1,32 @@
 {
-  "evaluated_at": "2026-11-17T04:16:20+00:00",
+  "evaluated_at": "2026-11-24T10:41:56+00:00",
   "dataset": "..\\data\\raw\\gitbugs\\firefox.csv",
   "corpus_size": 24824,
   "duplicates": 2477,
   "groups": 1506,
   "queries": 709,
   "holdout_fraction_of_groups": 0.3,
+  "protocol": "chronological: each query searches only reports created before it, and only those count as correct",
   "phase1_candidates": 100,
-  "phase1_ceiling": 0.7602,
+  "phase1_ceiling": 0.7094,
   "fusion_weight": 0.7,
   "sbert_model": "../models/sbert-duplicates",
   "results": {
     "bm25_only": {
-      "recall@1": 0.3343,
-      "recall@5": 0.4866,
-      "recall@10": 0.5458,
-      "mrr": 0.4056,
-      "map": 0.2828,
-      "mean_ms_per_query": 1.2
+      "recall@1": 0.3018,
+      "recall@5": 0.4471,
+      "recall@10": 0.519,
+      "mrr": 0.3734,
+      "map": 0.3025,
+      "mean_ms_per_query": 1.21
     },
     "bm25_plus_sbert": {
-      "recall@1": 0.4711,
-      "recall@5": 0.6446,
-      "recall@10": 0.6982,
-      "mrr": 0.5444,
-      "map": 0.3964,
-      "mean_ms_per_query": 9.04
+      "recall@1": 0.4401,
+      "recall@5": 0.6178,
+      "recall@10": 0.6601,
+      "mrr": 0.5158,
+      "map": 0.4187,
+      "mean_ms_per_query": 8.84
     }
   },
   "target_recall@5": 0.8,

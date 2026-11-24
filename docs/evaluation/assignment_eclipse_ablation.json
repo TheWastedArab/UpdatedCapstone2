@@ -1,0 +1,631 @@
+{
+  "evaluated_at": "2026-11-24T17:37:21+00:00",
+  "dataset": "..\\data\\raw\\zenodo_eclipse",
+  "protocol": "rolling chronological, 10 slices, training window 20000 bugs, developers with >= 10 fixes in the window",
+  "fixed_bugs": 89354,
+  "recorded_history": null,
+  "epochs": 8,
+  "inputs": "text, recorded severity and duplicate flag",
+  "reassignments": "simulated from the ranking (MNR), not observed",
+  "duplicate_routing_condition": "original fixed before the duplicate was filed (fix dates from the activity log)",
+  "methods": {
+    "deployed": {
+      "top1": 0.2659,
+      "top3": 0.4602,
+      "top5": 0.5602,
+      "mnr": 13.3089
+    },
+    "cnn_lstm": {
+      "top1": 0.1952,
+      "top3": 0.3679,
+      "top5": 0.4644,
+      "mnr": 17.8149
+    },
+    "tfidf_svm": {
+      "top1": 0.2787,
+      "top3": 0.4714,
+      "top5": 0.5618,
+      "mnr": 16.0939
+    },
+    "most_active_first": {
+      "top1": 0.0426,
+      "top3": 0.0951,
+      "top5": 0.1604,
+      "mnr": 33.9004
+    },
+    "random": {
+      "top1": 0.0091,
+      "top3": 0.0272,
+      "top5": 0.0453,
+      "mnr": 57.5951
+    }
+  },
+  "mnr_reduction_vs_random": 0.7689,
+  "mnr_reduction_vs_most_active_first": 0.6074,
+  "cnn_lstm_alone_mnr_reduction_vs_random": 0.6907,
+  "blend_weights_chosen": [
+    0.75,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.75,
+    0.75,
+    0.75
+  ],
+  "mean_coverage": 0.8418,
+  "mean_developers": 116.6,
+  "target_mnr_reduction": 0.2,
+  "target_met": true,
+  "duplicate_reports": {
+    "reports": 1029,
+    "covered": 972,
+    "original_fixer_known": 951,
+    "model": {
+      "top1": 0.3138,
+      "top3": 0.5257,
+      "top5": 0.6142,
+      "mnr": 9.574
+    },
+    "model_plus_duplicate_bonus": {
+      "top1": 0.429,
+      "top3": 0.8158,
+      "top5": 0.8601,
+      "mnr": 4.3622
+    }
+  },
+  "slices": [
+    {
+      "train_bugs": 7977,
+      "developers": 65,
+      "test_bugs": 8123,
+      "coverage": 0.9008,
+      "duplicate_reports": {
+        "reports": 148,
+        "covered": 145,
+        "original_fixer_known": 143,
+        "model": {
+          "top1": 0.2621,
+          "top3": 0.5241,
+          "top5": 0.6276,
+          "mnr": 7.062
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.3793,
+          "top3": 0.8138,
+          "top5": 0.8483,
+          "mnr": 3.407
+        }
+      },
+      "mean_inference_ms": 0.658,
+      "deployed": {
+        "top1": 0.29,
+        "top3": 0.5135,
+        "top5": 0.6199,
+        "mnr": 8.634
+      },
+      "blend_weight": 0.75,
+      "cnn_lstm": {
+        "top1": 0.2086,
+        "top3": 0.3905,
+        "top5": 0.4986,
+        "mnr": 11.672
+      },
+      "random": {
+        "mnr": 32.0,
+        "top1": 0.0154,
+        "top3": 0.0462,
+        "top5": 0.0769
+      },
+      "most_active_first": {
+        "top1": 0.0251,
+        "top3": 0.1453,
+        "top5": 0.2151,
+        "mnr": 19.614
+      },
+      "tfidf_svm": {
+        "top1": 0.2875,
+        "top3": 0.5025,
+        "top5": 0.6061,
+        "mnr": 9.852
+      }
+    },
+    {
+      "train_bugs": 16003,
+      "developers": 89,
+      "test_bugs": 8123,
+      "coverage": 0.7734,
+      "duplicate_reports": {
+        "reports": 102,
+        "covered": 90,
+        "original_fixer_known": 83,
+        "model": {
+          "top1": 0.2333,
+          "top3": 0.4111,
+          "top5": 0.5111,
+          "mnr": 13.044
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.3333,
+          "top3": 0.6778,
+          "top5": 0.7667,
+          "mnr": 6.822
+        }
+      },
+      "mean_inference_ms": 0.818,
+      "deployed": {
+        "top1": 0.2604,
+        "top3": 0.4651,
+        "top5": 0.5662,
+        "mnr": 11.236
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.2049,
+        "top3": 0.4048,
+        "top5": 0.5137,
+        "mnr": 13.701
+      },
+      "random": {
+        "mnr": 44.0,
+        "top1": 0.0112,
+        "top3": 0.0337,
+        "top5": 0.0562
+      },
+      "most_active_first": {
+        "top1": 0.0584,
+        "top3": 0.0845,
+        "top5": 0.1882,
+        "mnr": 27.057
+      },
+      "tfidf_svm": {
+        "top1": 0.2759,
+        "top3": 0.4632,
+        "top5": 0.55,
+        "mnr": 13.72
+      }
+    },
+    {
+      "train_bugs": 19685,
+      "developers": 118,
+      "test_bugs": 8123,
+      "coverage": 0.9237,
+      "duplicate_reports": {
+        "reports": 128,
+        "covered": 125,
+        "original_fixer_known": 125,
+        "model": {
+          "top1": 0.368,
+          "top3": 0.592,
+          "top5": 0.672,
+          "mnr": 5.52
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.504,
+          "top3": 0.872,
+          "top5": 0.904,
+          "mnr": 2.128
+        }
+      },
+      "mean_inference_ms": 1.032,
+      "deployed": {
+        "top1": 0.3112,
+        "top3": 0.5363,
+        "top5": 0.6439,
+        "mnr": 9.447
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.2486,
+        "top3": 0.4662,
+        "top5": 0.5728,
+        "mnr": 12.398
+      },
+      "random": {
+        "mnr": 58.5,
+        "top1": 0.0085,
+        "top3": 0.0254,
+        "top5": 0.0424
+      },
+      "most_active_first": {
+        "top1": 0.0537,
+        "top3": 0.1134,
+        "top5": 0.1851,
+        "mnr": 29.742
+      },
+      "tfidf_svm": {
+        "top1": 0.3221,
+        "top3": 0.5334,
+        "top5": 0.6253,
+        "mnr": 13.544
+      }
+    },
+    {
+      "train_bugs": 19630,
+      "developers": 115,
+      "test_bugs": 8123,
+      "coverage": 0.8944,
+      "duplicate_reports": {
+        "reports": 112,
+        "covered": 107,
+        "original_fixer_known": 107,
+        "model": {
+          "top1": 0.3364,
+          "top3": 0.6449,
+          "top5": 0.7383,
+          "mnr": 5.168
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.5421,
+          "top3": 0.8598,
+          "top5": 0.9065,
+          "mnr": 1.869
+        }
+      },
+      "mean_inference_ms": 0.802,
+      "deployed": {
+        "top1": 0.3082,
+        "top3": 0.5092,
+        "top5": 0.6171,
+        "mnr": 11.081
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.246,
+        "top3": 0.4345,
+        "top5": 0.5507,
+        "mnr": 14.669
+      },
+      "random": {
+        "mnr": 57.0,
+        "top1": 0.0087,
+        "top3": 0.0261,
+        "top5": 0.0435
+      },
+      "most_active_first": {
+        "top1": 0.0435,
+        "top3": 0.1327,
+        "top5": 0.1433,
+        "mnr": 32.705
+      },
+      "tfidf_svm": {
+        "top1": 0.3053,
+        "top3": 0.5081,
+        "top5": 0.6008,
+        "mnr": 13.58
+      }
+    },
+    {
+      "train_bugs": 19628,
+      "developers": 123,
+      "test_bugs": 8123,
+      "coverage": 0.88,
+      "duplicate_reports": {
+        "reports": 108,
+        "covered": 104,
+        "original_fixer_known": 102,
+        "model": {
+          "top1": 0.3462,
+          "top3": 0.5865,
+          "top5": 0.6923,
+          "mnr": 7.154
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.4904,
+          "top3": 0.8654,
+          "top5": 0.875,
+          "mnr": 3.01
+        }
+      },
+      "mean_inference_ms": 1.031,
+      "deployed": {
+        "top1": 0.2549,
+        "top3": 0.4417,
+        "top5": 0.5367,
+        "mnr": 12.843
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.2124,
+        "top3": 0.3902,
+        "top5": 0.4775,
+        "mnr": 16.709
+      },
+      "random": {
+        "mnr": 61.0,
+        "top1": 0.0081,
+        "top3": 0.0244,
+        "top5": 0.0407
+      },
+      "most_active_first": {
+        "top1": 0.0463,
+        "top3": 0.0888,
+        "top5": 0.1465,
+        "mnr": 42.943
+      },
+      "tfidf_svm": {
+        "top1": 0.2738,
+        "top3": 0.4517,
+        "top5": 0.5382,
+        "mnr": 16.231
+      }
+    },
+    {
+      "train_bugs": 19577,
+      "developers": 128,
+      "test_bugs": 8123,
+      "coverage": 0.8923,
+      "duplicate_reports": {
+        "reports": 111,
+        "covered": 106,
+        "original_fixer_known": 106,
+        "model": {
+          "top1": 0.4434,
+          "top3": 0.6226,
+          "top5": 0.6981,
+          "mnr": 8.255
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.5472,
+          "top3": 0.8396,
+          "top5": 0.8774,
+          "mnr": 4.821
+        }
+      },
+      "mean_inference_ms": 1.364,
+      "deployed": {
+        "top1": 0.257,
+        "top3": 0.4485,
+        "top5": 0.5563,
+        "mnr": 14.382
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.2035,
+        "top3": 0.3818,
+        "top5": 0.4852,
+        "mnr": 16.928
+      },
+      "random": {
+        "mnr": 63.5,
+        "top1": 0.0078,
+        "top3": 0.0234,
+        "top5": 0.0391
+      },
+      "most_active_first": {
+        "top1": 0.0349,
+        "top3": 0.0887,
+        "top5": 0.1623,
+        "mnr": 33.498
+      },
+      "tfidf_svm": {
+        "top1": 0.2758,
+        "top3": 0.4603,
+        "top5": 0.5552,
+        "mnr": 19.256
+      }
+    },
+    {
+      "train_bugs": 19598,
+      "developers": 128,
+      "test_bugs": 8123,
+      "coverage": 0.9122,
+      "duplicate_reports": {
+        "reports": 69,
+        "covered": 63,
+        "original_fixer_known": 63,
+        "model": {
+          "top1": 0.3492,
+          "top3": 0.5079,
+          "top5": 0.5238,
+          "mnr": 14.206
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.4127,
+          "top3": 0.8254,
+          "top5": 0.8889,
+          "mnr": 5.079
+        }
+      },
+      "mean_inference_ms": 0.816,
+      "deployed": {
+        "top1": 0.2622,
+        "top3": 0.4933,
+        "top5": 0.596,
+        "mnr": 11.214
+      },
+      "blend_weight": 0.5,
+      "cnn_lstm": {
+        "top1": 0.2051,
+        "top3": 0.419,
+        "top5": 0.5189,
+        "mnr": 14.619
+      },
+      "random": {
+        "mnr": 63.5,
+        "top1": 0.0078,
+        "top3": 0.0234,
+        "top5": 0.0391
+      },
+      "most_active_first": {
+        "top1": 0.0,
+        "top3": 0.0389,
+        "top5": 0.1077,
+        "mnr": 34.623
+      },
+      "tfidf_svm": {
+        "top1": 0.2873,
+        "top3": 0.5069,
+        "top5": 0.5933,
+        "mnr": 15.156
+      }
+    },
+    {
+      "train_bugs": 19544,
+      "developers": 122,
+      "test_bugs": 8123,
+      "coverage": 0.7192,
+      "duplicate_reports": {
+        "reports": 64,
+        "covered": 59,
+        "original_fixer_known": 58,
+        "model": {
+          "top1": 0.0847,
+          "top3": 0.1356,
+          "top5": 0.3051,
+          "mnr": 18.305
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.1356,
+          "top3": 0.6949,
+          "top5": 0.8475,
+          "mnr": 5.661
+        }
+      },
+      "mean_inference_ms": 0.98,
+      "deployed": {
+        "top1": 0.2535,
+        "top3": 0.4223,
+        "top5": 0.5303,
+        "mnr": 14.027
+      },
+      "blend_weight": 0.75,
+      "cnn_lstm": {
+        "top1": 0.1614,
+        "top3": 0.303,
+        "top5": 0.4065,
+        "mnr": 21.62
+      },
+      "random": {
+        "mnr": 60.5,
+        "top1": 0.0082,
+        "top3": 0.0246,
+        "top5": 0.041
+      },
+      "most_active_first": {
+        "top1": 0.0686,
+        "top3": 0.1017,
+        "top5": 0.1767,
+        "mnr": 34.659
+      },
+      "tfidf_svm": {
+        "top1": 0.2616,
+        "top3": 0.4493,
+        "top5": 0.5389,
+        "mnr": 15.992
+      }
+    },
+    {
+      "train_bugs": 19476,
+      "developers": 132,
+      "test_bugs": 8123,
+      "coverage": 0.7377,
+      "duplicate_reports": {
+        "reports": 128,
+        "covered": 118,
+        "original_fixer_known": 110,
+        "model": {
+          "top1": 0.2712,
+          "top3": 0.4576,
+          "top5": 0.5339,
+          "mnr": 12.246
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.3051,
+          "top3": 0.8051,
+          "top5": 0.8136,
+          "mnr": 6.695
+        }
+      },
+      "mean_inference_ms": 0.785,
+      "deployed": {
+        "top1": 0.2228,
+        "top3": 0.3605,
+        "top5": 0.4423,
+        "mnr": 18.972
+      },
+      "blend_weight": 0.75,
+      "cnn_lstm": {
+        "top1": 0.1075,
+        "top3": 0.2069,
+        "top5": 0.268,
+        "mnr": 26.659
+      },
+      "random": {
+        "mnr": 65.5,
+        "top1": 0.0076,
+        "top3": 0.0227,
+        "top5": 0.0379
+      },
+      "most_active_first": {
+        "top1": 0.025,
+        "top3": 0.0709,
+        "top5": 0.1529,
+        "mnr": 45.684
+      },
+      "tfidf_svm": {
+        "top1": 0.2417,
+        "top3": 0.405,
+        "top5": 0.492,
+        "mnr": 20.169
+      }
+    },
+    {
+      "train_bugs": 19202,
+      "developers": 146,
+      "test_bugs": 8124,
+      "coverage": 0.7845,
+      "duplicate_reports": {
+        "reports": 59,
+        "covered": 55,
+        "original_fixer_known": 54,
+        "model": {
+          "top1": 0.4,
+          "top3": 0.6182,
+          "top5": 0.6727,
+          "mnr": 15.018
+        },
+        "model_plus_duplicate_bonus": {
+          "top1": 0.5818,
+          "top3": 0.8364,
+          "top5": 0.8727,
+          "mnr": 7.236
+        }
+      },
+      "mean_inference_ms": 0.791,
+      "deployed": {
+        "top1": 0.2205,
+        "top3": 0.373,
+        "top5": 0.4499,
+        "mnr": 23.561
+      },
+      "blend_weight": 0.75,
+      "cnn_lstm": {
+        "top1": 0.1232,
+        "top3": 0.225,
+        "top5": 0.2862,
+        "mnr": 33.047
+      },
+      "random": {
+        "mnr": 72.5,
+        "top1": 0.0068,
+        "top3": 0.0205,
+        "top5": 0.0342
+      },
+      "most_active_first": {
+        "top1": 0.0796,
+        "top3": 0.0796,
+        "top5": 0.1269,
+        "mnr": 41.008
+      },
+      "tfidf_svm": {
+        "top1": 0.2388,
+        "top3": 0.405,
+        "top5": 0.4875,
+        "mnr": 25.07
+      }
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 Corpus 24824 reports, 2477 duplicates in 1506 groups, 709 queries from the newest 30% of groups
-BM25 index built in 4.5s
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 19963.65it/s]
-Corpus embedded in 30.7s
-bm25_only         recall@1=0.3343  recall@5=0.4866  recall@10=0.5458  mrr=0.4056  map=0.2828  mean_ms_per_query=1.2
-bm25_plus_sbert   recall@1=0.4711  recall@5=0.6446  recall@10=0.6982  mrr=0.5444  map=0.3964  mean_ms_per_query=9.04
-Phase-1 ceiling (duplicate within top 100): 0.7602; target Recall@5 0.8: NOT met
+BM25 index built in 4.8s
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 9890.64it/s]
+Corpus embedded in 33.6s
+709 queries, chronological: earlier reports only
+bm25_only         recall@1=0.3018  recall@5=0.4471  recall@10=0.519  mrr=0.3734  map=0.3025  mean_ms_per_query=1.21
+bm25_plus_sbert   recall@1=0.4401  recall@5=0.6178  recall@10=0.6601  mrr=0.5158  map=0.4187  mean_ms_per_query=8.84
+Phase-1 ceiling (duplicate within top 100): 0.7094; target Recall@5 0.8: NOT met

@@ -1,0 +1,20 @@
+89354 fixed bugs with an assignee, 949 developers in total; device cuda; 1203 duplicate reports whose original was fixed before they were filed; WITHOUT severity and duplicate inputs
+  slice  1: train   7977,   65 developers, coverage 90%, top1 0.2733, top5 0.59, MNR 8.925 (random 32.0)
+  slice  2: train  16003,   89 developers, coverage 77%, top1 0.2595, top5 0.5675, MNR 11.23 (random 44.0)
+  slice  3: train  19685,  118 developers, coverage 92%, top1 0.306, top5 0.6431, MNR 9.362 (random 58.5)
+  slice  4: train  19630,  115 developers, coverage 89%, top1 0.3056, top5 0.6223, MNR 10.383 (random 57.0)
+  slice  5: train  19628,  123 developers, coverage 88%, top1 0.2634, top5 0.54, MNR 12.764 (random 61.0)
+  slice  6: train  19577,  128 developers, coverage 89%, top1 0.2606, top5 0.5633, MNR 13.601 (random 63.5)
+  slice  7: train  19598,  128 developers, coverage 91%, top1 0.2668, top5 0.5923, MNR 11.333 (random 63.5)
+  slice  8: train  19544,  122 developers, coverage 72%, top1 0.2549, top5 0.525, MNR 13.657 (random 60.5)
+  slice  9: train  19476,  132 developers, coverage 74%, top1 0.2251, top5 0.4276, MNR 20.016 (random 65.5)
+  slice 10: train  19202,  146 developers, coverage 78%, top1 0.2209, top5 0.4481, MNR 24.239 (random 72.5)
+Result: average over 10 slices, 117 developers on average, coverage 84%
+  deployed           top1 0.2653  top3 0.4578  top5 0.5564  MNR 13.30
+  cnn_lstm           top1 0.1937  top3 0.3640  top5 0.4585  MNR 18.01
+  tfidf_svm          top1 0.2787  top3 0.4714  top5 0.5618  MNR 16.09
+  most_active_first  top1 0.0426  top3 0.0951  top5 0.1604  MNR 33.90
+  random             top1 0.0091  top3 0.0272  top5 0.0453  MNR 57.60
+  duplicate reports: 972 ranked; model top1 0.3189 top3 0.5370; with duplicate bonus top1 0.4249 top3 0.8200
+  MNR reduction vs random 76.9% (target 20%: met); vs most-active-first 60.8%
+Model of the last slice saved to C:\Users\muham\AppData\Local\Temp\claude\1d500ac0e1b66aa4\c98a3806-ef67-4db8-9c73-18e29a02c2e8\scratchpad\rerun\assignment_benchmark.pt; report in C:\Users\muham\AppData\Local\Temp\claude\1d500ac0e1b66aa4\c98a3806-ef67-4db8-9c73-18e29a02c2e8\scratchpad\rerun

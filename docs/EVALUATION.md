@@ -10,9 +10,9 @@ met, that is stated, with the measured value.
 | Criterion | Target | Measured | Met |
 | --- | --- | --- | --- |
 | Severity classification accuracy | ≥ 85% | 77.4% (four classes, Eclipse) | **No** |
-| Duplicate detection Recall@5 | ≥ 80% | 64% Firefox, 68% Thunderbird, 48–55% Eclipse | **No** |
-| Reassignment reduction vs random | ≥ 20% | 77% Eclipse, 62% Mozilla | Yes |
-| Duplicate check and submission latency | ≤ 1.5 s | 34 ms and 79 ms (p95, one request at a time) | Yes |
+| Duplicate detection Recall@5 | ≥ 80% | 62% Firefox, 63% Thunderbird, 47–57% Eclipse (chronological) | **No** |
+| Reassignment reduction vs random | ≥ 20% | 77% Eclipse, 62% Mozilla (simulated from the ranking, MNR); Top-3 0.46 and 0.27 | Yes |
+| Duplicate check and submission latency | ≤ 1.5 s | 34 ms and 79 ms (p95, one request at a time); submission 272 ms with the trained models on a busier machine | Yes |
 | Recommendation latency | ≤ 3 s | 30 ms (p95) | Yes |
 | Page load with 100 concurrent users | ≤ 2 s | ≤ 1.45 s (p95, one instance) | Yes |
 | Search and filter over 50,000 bugs | ≤ 2 s | 0.28 s (worst p95, 20 users at once) | Yes |
@@ -71,6 +71,33 @@ recall at least as high as the plain three-classifier vote's on that half.
 | High | 0.34 | **0.18** | 0.10 | 3,716 |
 | Critical | 0.33 | **0.38** | 0.34 | 1,840 |
 
+Every classifier on its own, on the same 39,036 test reports (`severity_comparison_eclipse.json`,
+written by `python -m ml.compare_severity --data ../data/raw/zenodo_eclipse`):
+
+| Classifier | Accuracy | Macro F1 | Weighted F1 | Recall Low / Medium / High / Critical |
+| --- | --- | --- | --- | --- |
+| Majority class (always Medium) | 0.792 | 0.221 | 0.701 | 0.00 / 1.00 / 0.00 / 0.00 |
+| Linear SVM | 0.757 | 0.391 | 0.732 | 0.16 / 0.91 / 0.14 / 0.33 |
+| Random Forest | 0.795 | 0.251 | 0.709 | 0.02 / 1.00 / 0.01 / 0.03 |
+| Naive Bayes | 0.664 | 0.350 | 0.679 | 0.14 / 0.78 / 0.20 / 0.40 |
+| Fine-tuned encoder | 0.712 | 0.429 | 0.718 | 0.35 / 0.82 / 0.22 / 0.42 |
+| Three-classifier vote (design) | 0.769 | 0.365 | 0.729 | 0.08 / 0.93 / 0.10 / 0.34 |
+| **Deployed combination** | 0.774 | **0.430** | **0.749** | 0.18 / 0.92 / 0.18 / 0.38 |
+
+Confusion matrix of the deployed model (rows true, columns predicted):
+
+| | Low | Medium | High | Critical |
+| --- | --- | --- | --- | --- |
+| Low | 453 | 2,044 | 34 | 18 |
+| Medium | 526 | 28,384 | 1,036 | 985 |
+| High | 12 | 2,620 | 664 | 420 |
+| Critical | 2 | 926 | 212 | 700 |
+
+Why the combination: the Random Forest's accuracy comes from answering Medium almost every
+time (Critical recall 0.03); the encoder alone matches the combination's macro F1 but is 6.2
+points less accurate and less precise in every minority class. Most errors are into Medium;
+only 2 Critical reports were called Low and 18 Low reports Critical.
+
 The model trained on 17 November, the three-classifier vote fitted on the whole training
 part, scored 0.767 accuracy and 0.373 macro F1 (Critical recall 0.35).
 
@@ -87,34 +114,48 @@ several of the papers in Chapter 2 use) accuracy is 0.616 against a baseline of 
 macro F1 is 0.592. That run is for comparison only; its model is not deployed because the
 service needs all four levels.
 
-What this means for the report: the 85–88% of Namdar et al. [14] was obtained on an
+What this means for the report: the 85–88% of Namdar et al. (2025) was obtained on an
 industrial dataset with curated labels and does not transfer to open Bugzilla data.
 
 ## Duplicate detection (Section 3.6.2)
 
-Queries are reports from the newest 30% of duplicate groups; the corpus is every other
-report of that project. The encoder was fine-tuned on 32,954 duplicate pairs from the older
-70% of groups only (Eclipse, Firefox, Thunderbird), so it has never seen a test group.
+Duplicate groups are ordered by the id of their first report and the newest 30% held out;
+the encoder was fine-tuned on 32,954 duplicate pairs from the older 70% of groups only
+(Eclipse, Firefox, Thunderbird). Because the encoder was fine-tuned on the four Eclipse
+projects together, the per-project held-out groups that fall in the training part of that
+combined split (69 in JDT, 214 in Platform) are left out with `--fine-tuned-on`.
+
+**The evaluation is chronological**, as the live check is: reports are ordered by filing
+date (id breaks ties), a held-out report is a query only if a member of its group was filed
+before it, it is searched only against earlier reports, and only those earlier members
+count as correct. The first protocol searched the whole project, so a query could be
+credited for a duplicate filed after it; those results are kept as
+`duplicates_*_including_later.json` (run with `--include-later` and a tag ending in
+`_including_later`, e.g. `--tag jdt_finetuned_including_later`, so the chronological file
+is not overwritten).
 Files: `duplicates_*_base_encoder.json`, `duplicates_*_finetuned.json`.
 
-| Project | Corpus | Queries | BM25 only | + all-MiniLM-L6-v2 | + fine-tuned | MRR (fine-tuned) | Time per query |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Firefox | 24,824 | 709 | 0.487 | 0.616 | **0.645** | 0.544 | 9 ms |
-| Thunderbird | 15,192 | 619 | 0.553 | 0.651 | **0.683** | 0.549 | 9 ms |
-| Eclipse CDT | 22,371 | 520 | 0.444 | 0.502 | **0.550** | 0.444 | 9 ms |
-| Eclipse JDT | 63,266 | 2,489 | 0.380 | 0.421 | **0.480** | 0.384 | 10 ms |
-| Eclipse Platform | 122,496 | 4,876 | 0.384 | 0.449 | **0.497** | 0.406 | 13 ms |
+| Project | Corpus | Queries | BM25 only | + all-MiniLM-L6-v2 | + fine-tuned | MRR (fine-tuned) | First protocol, fine-tuned | Time per query |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Firefox | 24,824 | 709 | 0.447 | 0.588 | **0.618** | 0.516 | 0.645 | 9 ms |
+| Thunderbird | 15,192 | 619 | 0.490 | 0.588 | **0.632** | 0.512 | 0.683 | 8 ms |
+| Eclipse CDT | 22,371 | 520 | 0.450 | 0.508 | **0.573** | 0.459 | 0.550 | 9 ms |
+| Eclipse JDT | 63,266 | 2,389 | 0.368 | 0.402 | **0.469** | 0.379 | 0.480 | 10 ms |
+| Eclipse Platform | 122,496 | 4,475 | 0.365 | 0.432 | **0.478** | 0.394 | 0.497 | 12 ms |
 
 The three middle columns are Recall@5. Recall@1, Recall@10 and MAP are in the JSON files.
 
 **The 80% target is not met.** What the measurements show:
 
-- The two-phase design works as intended: semantic re-ranking adds 6 to 13 points over
-  keyword matching, and fine-tuning on duplicate pairs adds a further 3 to 6.
+- The two-phase design works as intended: semantic re-ranking adds 3 to 14 points over
+  keyword matching, and fine-tuning on duplicate pairs adds a further 3 to 7.
 - The first phase is the limit. On Eclipse the true duplicate is among the 100 BM25
-  candidates for only 63–73% of queries, which no re-ranker can recover.
-- Adding embedding-based retrieval to the first phase was tried and raised that ceiling to
-  84–93%, but Recall@5 rose by only 2–3 points, so the design was left as specified.
+  candidates for only 60–72% of queries, which no re-ranker can recover.
+- Adding embedding-based retrieval to the first phase was tried (under the first protocol)
+  and raised that ceiling to 84–93%, but Recall@5 rose by only 2–3 points, so the design
+  was left as specified.
+- The chronological protocol lowers Recall@5 by 1 to 5 points on four projects and raises
+  it by 2 on CDT, where searching only earlier reports also removes competing later ones.
 - Latency is far inside the 1.5 s budget even with 122,000 reports.
 
 Before these changes the design exactly as first written (50 candidates, cosine only, base
@@ -124,20 +165,27 @@ are all now part of `app/ai/duplicates.py`.
 
 ## Developer assignment (Section 3.6.3)
 
-Rolling chronological evaluation over ten slices, as in DeepTriage [12]: train on the 20,000
+Rolling chronological evaluation over ten slices, as in DeepTriage (Mani et al., 2018): train on the 20,000
 fixed bugs before each slice, test on the slice. File: `assignment_eclipse_mozilla.json`.
 
-| | Eclipse (89,354 fixed bugs) | | | Mozilla (69,549 fixed bugs) | | |
-| --- | --- | --- | --- | --- | --- | --- |
-| Method | Top-1 | Top-5 | MNR | Top-1 | Top-5 | MNR |
-| **Deployed: CNN-LSTM + TF-IDF blend** | 0.266 | 0.560 | **13.3** | 0.164 | 0.324 | **49.5** |
-| CNN-LSTM alone | 0.195 | 0.464 | 17.8 | 0.110 | 0.234 | 63.7 |
-| TF-IDF + linear SVM | 0.279 | 0.562 | 16.1 | 0.185 | 0.350 | 61.4 |
-| Most active developers first | 0.043 | 0.160 | 33.9 | 0.043 | 0.124 | 77.0 |
-| Random | 0.009 | 0.045 | 57.6 | 0.004 | 0.021 | 130.7 |
+| | Eclipse (89,354 fixed bugs) | | Mozilla (69,549 fixed bugs) | |
+| --- | --- | --- | --- | --- |
+| Method | Top-1 / Top-3 / Top-5 | MNR | Top-1 / Top-3 / Top-5 | MNR |
+| **Deployed: CNN-LSTM + TF-IDF blend** | 0.266 / **0.460** / 0.560 | **13.3** | 0.164 / 0.267 / 0.324 | **49.5** |
+| CNN-LSTM alone | 0.195 / 0.368 / 0.464 | 17.8 | 0.110 / 0.189 / 0.234 | 63.7 |
+| TF-IDF + linear SVM | 0.279 / 0.471 / 0.562 | 16.1 | 0.185 / 0.297 / 0.350 | 61.4 |
+| Most active developers first | 0.043 / 0.095 / 0.160 | 33.9 | 0.043 / 0.086 / 0.124 | 77.0 |
+| Random | 0.009 / 0.027 / 0.045 | 57.6 | 0.004 / 0.013 / 0.021 | 130.7 |
 
 Candidate developers per slice averaged 117 on Eclipse and 260 on Mozilla. MNR is the mean
-number of developers tried before the one who fixed the bug.
+number of developers tried before the one who fixed the bug. The extension shows three
+recommendations, so Top-3 is the figure closest to what a triager sees.
+
+**All reassignment figures are simulated from the ranking, not observed.** MNR assumes the
+bug is offered to candidates one at a time in the recommended order. For context only: in
+the Mozilla history the assignee field of a fixed bug changed 1.39 times on average (every
+bug at least once, because Mozilla bugs start with a default owner). That is not comparable
+with MNR, and no observed reduction is claimed.
 
 - **The deployed model** blends the CNN-LSTM's probabilities with those of a TF-IDF and
   linear SVM ranker trained on the same window (`app/ai/cnn_lstm.py`). The blend weight is
@@ -148,7 +196,7 @@ number of developers tried before the one who fixed the bug.
 - **The two models are complementary.** Neither alone reaches the blend's mean rank: on
   Eclipse the SVM has the better top-1 (0.279 against 0.266), but it places the remaining
   developers worse, so the blend's MNR is 2.8 lower than the SVM's. On Mozilla the gap is 11.9.
-- The report's Table 6 puts SVM baselines at 60–70% precision and CNN-LSTM at 78–85%;
+- Table 2.3 of the report puts SVM baselines at 60–70% precision and CNN-LSTM at 78–85%;
   neither figure is reproduced here, and on its own the CNN-LSTM is the weaker model.
 - Coverage: 84% of Eclipse test bugs and 68% of Mozilla test bugs were fixed by a developer
   with at least ten fixes in the training window. The rest cannot be ranked by any method
@@ -157,6 +205,39 @@ number of developers tried before the one who fixed the bug.
 - A single old/new split is misleading on this data. Over twenty years the team changes
   completely, and every method scores near zero. That is why the rolling protocol is used,
   and it matches how the deployed system retrains (FR-29).
+
+## Integration of the modules (Section 6.5.5 of the report)
+
+Does feeding severity and duplicate detection into assignment help? Two runs of the same
+rolling evaluation on Eclipse: with the inputs (`assignment_eclipse_ablation.json`) and
+without them (`--no-meta`, `assignment_eclipse_no_meta.json`). Each run also ranks the
+reports closed as duplicates in each test slice whose original had already been fixed when
+the duplicate was filed (1,029 with a real assignee; 972 by a rankable developer), by the
+model alone and with the recommender's duplicate bonus (0.40 x relative probability + 0.25
+for the original's fixer). The fix date comes from each bug's activity log
+(`ml/fetch_fix_dates.py`, saved in `data/raw/zenodo_eclipse/fix_dates/`).
+
+| Comparison | Top-1 | Top-3 | Top-5 | MNR |
+| --- | --- | --- | --- | --- |
+| All fixed bugs: deployed model, with severity and duplicate inputs | 0.266 | 0.460 | 0.560 | 13.3 |
+| All fixed bugs: deployed model, text only | 0.265 | 0.458 | 0.556 | 13.3 |
+| All fixed bugs: CNN-LSTM, with inputs | 0.195 | 0.368 | 0.464 | 17.8 |
+| All fixed bugs: CNN-LSTM, text only | 0.194 | 0.364 | 0.459 | 18.0 |
+| Duplicate reports: model alone | 0.314 | 0.526 | 0.614 | 9.6 |
+| Duplicate reports: model + duplicate bonus | **0.429** | **0.816** | **0.860** | **4.4** |
+
+- The duplicate link is where integration pays: in 67% of the 1,203 Eclipse duplicates whose
+  original was already fixed when they were filed, the duplicate was handled by whoever had
+  fixed the original.
+- A first version checked only that the original was created earlier, not fixed earlier, so it
+  also counted originals fixed after the duplicate was filed (Top-3 0.51 to 0.77 on 4,166
+  reports). The figures above replace it.
+- Not measured: the live bonus also goes to the assignee of an original that is still open.
+  The archive does not record who was assigned at each point in time.
+- As model inputs, severity and the duplicate flag add little. The flag is never set on a
+  fixed Eclipse bug (no fixed bug is itself closed as a duplicate), so the model cannot use it.
+- Upper bound: the recorded severity is used, not the classifier's prediction. The workload
+  penalty cannot be evaluated offline (past workloads were not recorded).
 
 ## System level (Section 3.6.4)
 
@@ -187,7 +268,7 @@ project. Files: `system_latency_1_instance.json`, `system_latency_4_instances.js
   cost of the trained models was measured afterwards, back to back against that
   configuration on fresh 2,000-bug databases (`system_latency_models_ab.json`). The machine
   was busier then, so both configurations were slower than in the table; the difference
-  is what matters. One instance: a single submission +42 ms at the median (130 → 172 ms),
+  is what matters. One instance: a single submission +42 ms at the median (130 → 172 ms) and +51 ms at p95 (221 → 272 ms),
   the 50-report burst +0.07 s at the median and +0.84 s at p95. Four instances: no
   measurable difference in the burst (p95 1.82 s → 1.66 s, within run-to-run noise).
   Pages are unaffected. A severity prediction costs 35 ms for one report, most of it the
