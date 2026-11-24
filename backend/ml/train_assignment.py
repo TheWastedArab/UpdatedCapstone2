@@ -35,10 +35,16 @@ Integration with the other two modules (Section 6.5.3):
     two runs show what those inputs contribute. The recorded severity is used, so
     the gain is an upper bound for a predicted severity.
   - Duplicate routing is measured on the reports closed as duplicates in each test
-    slice: those with a real assignee, whose original was fixed earlier by a real
-    developer. They are ranked by the model alone, and by the model with the
-    service's duplicate bonus (0.40 x relative model probability + 0.25 for the
-    developer who handled the original, the weights of app/ai/assignment.py).
+    slice: those with a real assignee whose original had already been fixed by a
+    real developer when the duplicate was filed. The fix date comes from the bug's
+    activity log (ml/fetch_fix_dates.py, read from <data>/fix_dates/ or --fix-dates);
+    without it, only originals created earlier are kept and the result is marked as
+    an upper bound, because the original may have been fixed later. They are ranked
+    by the model alone, and by the model with the service's duplicate bonus (0.40 x
+    relative model probability + 0.25 for the developer who fixed the original, the
+    weights of app/ai/assignment.py). The live service also gives the bonus to the
+    assignee of an original that is still open; that case needs the assignment
+    history at each point in time, which the dataset does not keep, and is not measured.
 
 All reassignment figures here are simulated from the ranking (MNR); they are not
 reassignments observed in a running team.
@@ -64,8 +70,24 @@ SEVERITY_RANK = {"Low": 0, "Medium": 1, "High": 2, "Critical": 3}
 FOLDS = 10
 
 
-def duplicate_reports(frame: pd.DataFrame, no_meta: bool) -> pd.DataFrame:
-    """Reports closed as duplicates whose earlier original was fixed by a real developer."""
+def load_fix_dates(folder: Path) -> dict:
+    """bug_id -> time the bug was marked FIXED, from the files ml/fetch_fix_dates.py writes."""
+    files = sorted(folder.glob("*.csv"))
+    if not files:
+        return {}
+    dates = pd.concat([pd.read_csv(f, dtype={"bug_id": "int64", "fixed_at": str}) for f in files], ignore_index=True)
+    dates["fixed_at"] = pd.to_datetime(dates["fixed_at"], errors="coerce", utc=True)
+    dates = dates.dropna(subset=["fixed_at"])
+    return dict(zip(dates["bug_id"], dates["fixed_at"]))
+
+
+def duplicate_reports(frame: pd.DataFrame, no_meta: bool, fixed_at: dict | None = None) -> pd.DataFrame:
+    """Reports closed as duplicates whose original had been fixed by a real developer when they were filed.
+
+    With fixed_at (bug_id -> fix time) the original must have been fixed before the duplicate
+    was created. Without it, only the original's creation date can be checked, which lets in
+    originals fixed after the duplicate was filed.
+    """
     if "resolution" not in frame or frame["resolution"].isna().all():
         return pd.DataFrame(columns=["created", "text", "meta", "assignee", "fixer"])
     name = frame["assignee"].astype(str).str.strip().str.lower()
@@ -78,7 +100,8 @@ def duplicate_reports(frame: pd.DataFrame, no_meta: bool) -> pd.DataFrame:
     dups["assignee"] = name[dups.index]
     original = dups["dup_id"].astype("int64")
     dups["fixer"] = original.map(fixer)
-    dups = dups[dups["fixer"].notna() & (original.map(created) < dups["created"])]
+    known_before = original.map(fixed_at) if fixed_at else original.map(created)
+    dups = dups[dups["fixer"].notna() & (known_before < dups["created"])]
     raw = dups["severity"].astype(str).str.strip().str.lower().map(datasets.BUGZILLA_TO_LEVEL)
     dups["meta"] = [cnn_lstm.encode_meta(None, False) if no_meta else cnn_lstm.encode_meta(SEVERITY_RANK.get(level), True)
                     for level in raw]
@@ -118,7 +141,7 @@ def duplicate_routing(model, index: dict, dups: pd.DataFrame) -> dict | None:
     """Duplicate reports of a test slice: the model alone, and with the service's duplicate bonus."""
     covered = dups[dups["assignee"].isin(index)]
     if covered.empty:
-        return None
+        return {"reports": len(dups), "covered": 0, "original_fixer_known": 0}
     texts, metas = covered["text"].tolist(), covered["meta"].tolist()
     probabilities = np.concatenate([model.predict_proba(texts[i:i + 256], metas[i:i + 256]) for i in range(0, len(texts), 256)])
     target = np.array([index[a] for a in covered["assignee"]])
@@ -147,6 +170,8 @@ def run_fold(train, test, min_bugs: int, epochs: int, batch_size: int, device: s
     covered = [i for i, label in enumerate(test[2]) if label in index]
     result = {"train_bugs": len(texts), "developers": len(model.classes), "test_bugs": len(test[2]),
               "coverage": round(len(covered) / max(1, len(test[2])), 4)}
+    if dups is not None and len(dups):
+        result["duplicate_reports"] = duplicate_routing(model, index, dups)
     if not covered:
         return result, blob
     t_texts, t_metas = [test[0][i] for i in covered], [test[1][i] for i in covered]
@@ -158,10 +183,6 @@ def run_fold(train, test, min_bugs: int, epochs: int, batch_size: int, device: s
     result["blend_weight"] = model.blend_weight
     cnn_only = np.concatenate([model.predict_proba(t_texts[i:i + 256], t_metas[i:i + 256], cnn_only=True) for i in range(0, len(covered), 256)])
     result["cnn_lstm"] = summarise(ranks_of(cnn_only, target))
-    if dups is not None and len(dups):
-        routing = duplicate_routing(model, index, dups)
-        if routing:
-            result["duplicate_reports"] = routing
     # Baselines, on exactly the same bugs and the same candidate developers.
     n = len(model.classes)
     result["random"] = {"mnr": round((n - 1) / 2, 3), **{f"top{k}": round(min(1.0, k / n), 4) for k in (1, 3, 5)}}
@@ -212,12 +233,14 @@ def rolling(texts, metas, labels, created=None, dups: pd.DataFrame | None = None
     routed = [f["duplicate_reports"] for f in folds if "duplicate_reports" in f]
     duplicates = None
     if routed:
-        n = np.array([r["covered"] for r in routed])
-        duplicates = {"reports": int(sum(r["reports"] for r in routed)), "covered": int(n.sum()),
-                      "original_fixer_known": int(sum(r["original_fixer_known"] for r in routed)),
-                      **{variant: {key: round(float(np.average([r[variant][key] for r in routed], weights=n)), 4)
-                                   for key in ("top1", "top3", "top5", "mnr")}
-                         for variant in ("model", "model_plus_duplicate_bonus")}}
+        ranked = [r for r in routed if r["covered"]]
+        duplicates = {"reports": int(sum(r["reports"] for r in routed)), "covered": int(sum(r["covered"] for r in routed)),
+                      "original_fixer_known": int(sum(r["original_fixer_known"] for r in routed))}
+        if ranked:
+            n = np.array([r["covered"] for r in ranked])
+            duplicates |= {variant: {key: round(float(np.average([r[variant][key] for r in ranked], weights=n)), 4)
+                                     for key in ("top1", "top3", "top5", "mnr")}
+                           for variant in ("model", "model_plus_duplicate_bonus")}
     summary = {
         "methods": methods, "mnr_reduction_vs_random": round(reduction, 4),
         "mnr_reduction_vs_most_active_first": round(1 - methods["deployed"]["mnr"] / methods["most_active_first"]["mnr"], 4),
@@ -235,7 +258,7 @@ def report(name: str, summary: dict) -> None:
     print(f"{name}: average over {FOLDS} slices, {summary['mean_developers']:.0f} developers on average, coverage {summary['mean_coverage']:.0%}")
     for method, values in summary["methods"].items():
         print(f"  {method:<18} top1 {values['top1']:.4f}  top3 {values['top3']:.4f}  top5 {values['top5']:.4f}  MNR {values['mnr']:.2f}")
-    if summary.get("duplicate_reports"):
+    if summary.get("duplicate_reports", {}) and "model" in summary["duplicate_reports"]:
         d = summary["duplicate_reports"]
         print(f"  duplicate reports: {d['covered']} ranked; model top1 {d['model']['top1']:.4f} top3 {d['model']['top3']:.4f}; "
               f"with duplicate bonus top1 {d['model_plus_duplicate_bonus']['top1']:.4f} "
@@ -258,6 +281,7 @@ def main() -> None:
     parser.add_argument("--report", type=Path, default=ROOT / "docs" / "evaluation")
     parser.add_argument("--tag", default="", help="Suffix for the report file name, e.g. the dataset name")
     parser.add_argument("--no-meta", action="store_true", help="Leave out the severity and duplicate inputs (ablation)")
+    parser.add_argument("--fix-dates", type=Path, help="Folder of fix dates from ml/fetch_fix_dates.py (default: <data>/fix_dates)")
     args = parser.parse_args()
     if not args.synthetic and not args.data:
         parser.error("give --data PATH or --synthetic")
@@ -266,9 +290,15 @@ def main() -> None:
 
     frame = synthetic.generate(6000) if args.synthetic else datasets.load(args.data)
     texts, metas, labels, history, created = prepare(frame, args.max_rows, args.no_meta)
-    dups = None if args.synthetic else duplicate_reports(frame, args.no_meta)
+    dups, fixed_at = None, {}
+    if not args.synthetic:
+        folder = args.fix_dates or (args.data / "fix_dates" if args.data.is_dir() else args.data.parent / "fix_dates")
+        fixed_at = load_fix_dates(folder) if folder.is_dir() else {}
+        dups = duplicate_reports(frame, args.no_meta, fixed_at or None)
     print(f"{len(texts)} fixed bugs with an assignee, {len(set(labels))} developers in total; device {device}"
-          + (f"; {len(dups)} duplicate reports with an earlier fixed original" if dups is not None else "")
+          + (f"; {len(dups)} duplicate reports whose original was "
+             + ("fixed before they were filed" if fixed_at else "created earlier (no fix dates: upper bound)")
+             if dups is not None else "")
           + ("; WITHOUT severity and duplicate inputs" if args.no_meta else ""))
     summary, blob = rolling(texts, metas, labels, created, dups, **settings)
     report("Result", summary)
@@ -278,7 +308,11 @@ def main() -> None:
         "protocol": f"rolling chronological, {FOLDS} slices, training window {args.window} bugs, developers with >= {args.min_bugs} fixes in the window",
         "fixed_bugs": len(texts), "recorded_history": history, "epochs": args.epochs,
         "inputs": "text only (severity and duplicate inputs left out)" if args.no_meta else "text, recorded severity and duplicate flag",
-        "reassignments": "simulated from the ranking (MNR), not observed", **summary,
+        "reassignments": "simulated from the ranking (MNR), not observed",
+        "duplicate_routing_condition": None if args.synthetic else
+        ("original fixed before the duplicate was filed (fix dates from the activity log)" if fixed_at else
+         "original created before the duplicate; its fix may be later, so an upper bound"),
+        **summary,
     }
     if args.ood:
         o_texts, o_metas, o_labels, o_history, _ = prepare(datasets.load(args.ood), args.max_rows, args.no_meta)

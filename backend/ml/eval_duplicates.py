@@ -104,10 +104,11 @@ def main() -> None:
     ids = frame["bug_id"].tolist()
     titles, descriptions = frame["title"].tolist(), frame["description"].tolist()
     position = {bug: i for i, bug in enumerate(ids)}
-    # Time order: creation date where known, the bug id otherwise and to break ties.
-    created = frame["created"] if "created" in frame and frame["created"].notna().any() else None
+    # Time order: creation date, with the bug id to break ties. If any date is missing the
+    # bug id orders the whole corpus, so a report without a date is never put first.
+    created = frame["created"] if "created" in frame and frame["created"].notna().all() else None
     if created is not None:
-        order = np.lexsort((frame["bug_id"].to_numpy(), created.fillna(created.min()).to_numpy()))
+        order = np.lexsort((frame["bug_id"].to_numpy(), created.to_numpy()))
     else:
         order = np.argsort(frame["bug_id"].to_numpy(), kind="stable")
     when = np.empty(len(ids), dtype=np.int64)
@@ -152,8 +153,9 @@ def main() -> None:
             order = np.argsort(-fuse(similarity, np.array([s for _, s in shortlist]), args.fusion))
             two_phase_rankings.append([candidates[i] for i in order])
             rerank_ms.append((time.perf_counter() - started) * 1000)
-        elif semantic:
+        elif semantic:  # every candidate was filtered out: nothing to re-rank
             two_phase_rankings.append([])
+            rerank_ms.append(0.0)
 
     results = {"bm25_only": {**rank_metrics(bm25_rankings, relevant), "mean_ms_per_query": round(float(np.mean(bm25_ms)), 2)}}
     if semantic:

@@ -36,10 +36,15 @@ def main() -> None:
     frame = datasets.with_levels(datasets.load(args.data))
     texts, levels = datasets.text_of(frame).tolist(), frame["level"].tolist()
     labels = [label for label in CANONICAL_SEVERITIES if label in set(levels)]
-    _, x_test, _, y_test = train_test_split(texts, levels, test_size=0.2, stratify=levels, random_state=42)
-    print(f"{len(x_test)} test reports")
 
     bundle = joblib.load(args.models / MODEL_FILENAME)  # the project's own model file
+    trained = bundle.get("meta", {})
+    if trained.get("drop_default_severity") or trained.get("rows", len(texts)) != len(texts):
+        raise SystemExit(f"The model in {args.models} was trained on {trained.get('rows')} reports"
+                         f"{' without the default severity' if trained.get('drop_default_severity') else ''}, "
+                         f"not on the {len(texts)} reports of {args.data}; its test split cannot be rebuilt here.")
+    _, x_test, _, y_test = train_test_split(texts, levels, test_size=0.2, stratify=levels, random_state=42)
+    print(f"{len(x_test)} test reports")
     pipeline, stack, bias = bundle["pipeline"], bundle["stack"], np.asarray(bundle["bias"], dtype=float)
     classes = list(pipeline.named_steps["vote"].le_.classes_)
     encoder = EncoderClassifier.load(args.models / bundle.get("encoder_dir", ENCODER_DIRNAME), len(classes))

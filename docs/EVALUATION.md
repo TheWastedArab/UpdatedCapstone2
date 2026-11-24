@@ -130,7 +130,9 @@ date (id breaks ties), a held-out report is a query only if a member of its grou
 before it, it is searched only against earlier reports, and only those earlier members
 count as correct. The first protocol searched the whole project, so a query could be
 credited for a duplicate filed after it; those results are kept as
-`duplicates_*_including_later.json` (run with `--include-later`).
+`duplicates_*_including_later.json` (run with `--include-later` and a tag ending in
+`_including_later`, e.g. `--tag jdt_finetuned_including_later`, so the chronological file
+is not overwritten).
 Files: `duplicates_*_base_encoder.json`, `duplicates_*_finetuned.json`.
 
 | Project | Corpus | Queries | BM25 only | + all-MiniLM-L6-v2 | + fine-tuned | MRR (fine-tuned) | First protocol, fine-tuned | Time per query |
@@ -209,9 +211,11 @@ with MNR, and no observed reduction is claimed.
 Does feeding severity and duplicate detection into assignment help? Two runs of the same
 rolling evaluation on Eclipse: with the inputs (`assignment_eclipse_ablation.json`) and
 without them (`--no-meta`, `assignment_eclipse_no_meta.json`). Each run also ranks the
-reports closed as duplicates in each test slice (4,497 with a real assignee whose original
-was fixed earlier; 4,166 by a rankable developer), by the model alone and with the
-recommender's duplicate bonus (0.40 x relative probability + 0.25 for the original's fixer).
+reports closed as duplicates in each test slice whose original had already been fixed when
+the duplicate was filed (1,029 with a real assignee; 972 by a rankable developer), by the
+model alone and with the recommender's duplicate bonus (0.40 x relative probability + 0.25
+for the original's fixer). The fix date comes from each bug's activity log
+(`ml/fetch_fix_dates.py`, saved in `data/raw/zenodo_eclipse/fix_dates/`).
 
 | Comparison | Top-1 | Top-3 | Top-5 | MNR |
 | --- | --- | --- | --- | --- |
@@ -219,11 +223,17 @@ recommender's duplicate bonus (0.40 x relative probability + 0.25 for the origin
 | All fixed bugs: deployed model, text only | 0.265 | 0.458 | 0.556 | 13.3 |
 | All fixed bugs: CNN-LSTM, with inputs | 0.195 | 0.368 | 0.464 | 17.8 |
 | All fixed bugs: CNN-LSTM, text only | 0.194 | 0.364 | 0.459 | 18.0 |
-| Duplicate reports: model alone | 0.309 | 0.513 | 0.612 | 9.8 |
-| Duplicate reports: model + duplicate bonus | **0.402** | **0.773** | **0.833** | **4.8** |
+| Duplicate reports: model alone | 0.314 | 0.526 | 0.614 | 9.6 |
+| Duplicate reports: model + duplicate bonus | **0.429** | **0.816** | **0.860** | **4.4** |
 
-- The duplicate link is where integration pays: in 61% of the 5,444 such Eclipse reports the
-  duplicate was handled by whoever fixed the original.
+- The duplicate link is where integration pays: in 67% of the 1,203 Eclipse duplicates whose
+  original was already fixed when they were filed, the duplicate was handled by whoever had
+  fixed the original.
+- A first version checked only that the original was created earlier, not fixed earlier, so it
+  also counted originals fixed after the duplicate was filed (Top-3 0.51 to 0.77 on 4,166
+  reports). The figures above replace it.
+- Not measured: the live bonus also goes to the assignee of an original that is still open.
+  The archive does not record who was assigned at each point in time.
 - As model inputs, severity and the duplicate flag add little. The flag is never set on a
   fixed Eclipse bug (no fixed bug is itself closed as a duplicate), so the model cannot use it.
 - Upper bound: the recorded severity is used, not the classifier's prediction. The workload
