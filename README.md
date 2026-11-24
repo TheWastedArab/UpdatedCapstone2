@@ -148,13 +148,19 @@ common format to `data/raw/<dataset>/`.
 ```bash
 # Severity: trains the deployed model (models/severity.joblib) and writes the report
 python -m ml.train_severity --data ../data/raw/zenodo_eclipse --tag eclipse
+# Compare the deployed model with the baseline and each classifier alone (with confusion matrices)
+python -m ml.compare_severity --data ../data/raw/zenodo_eclipse
 
 # Duplicates: fine-tune the encoder on the older 70% of duplicate groups, then evaluate on the rest
 python -m ml.train_duplicates --data ../data/raw/zenodo_eclipse ../data/raw/gitbugs/firefox.csv ../data/raw/gitbugs/thunderbird.csv
 python -m ml.eval_duplicates --data ../data/raw/gitbugs/firefox.csv --holdout 0.3 --model ../models/sbert-duplicates --tag firefox_finetuned
+# Eclipse projects: leave out held-out groups that the combined fine-tuning split trained on
+python -m ml.eval_duplicates --data ../data/raw/zenodo_eclipse/JDT.csv --holdout 0.3 --fine-tuned-on ../data/raw/zenodo_eclipse --model ../models/sbert-duplicates --tag jdt_finetuned
 
 # Assignment: rolling chronological evaluation on Eclipse, generalisation check on Mozilla
 python -m ml.train_assignment --data ../data/raw/zenodo_eclipse --ood ../data/raw/msr2013/mozilla.csv --tag eclipse_mozilla
+# Ablation: the same without the severity and duplicate inputs (--out keeps the deployed model untouched)
+python -m ml.train_assignment --data ../data/raw/zenodo_eclipse --no-meta --tag eclipse_no_meta --out ../scratch
 
 # System latency and load (server must be running)
 python -m scripts.seed --bugs 2000

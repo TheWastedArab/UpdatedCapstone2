@@ -1,8 +1,10 @@
-Corpus 63266 reports, 9366 duplicates in 5322 groups, 2489 queries from the newest 30% of groups
-BM25 index built in 8.7s
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<?, ?it/s]
+69 held-out groups were in the fine-tuning data of ..\data\raw\zenodo_eclipse and are left out
+Corpus 63266 reports, 9366 duplicates in 5322 groups, 2389 queries from the newest 30% of groups
+BM25 index built in 10.2s
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 5797.98it/s]
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Corpus embedded in 72.6s
-bm25_only         recall@1=0.2411  recall@5=0.3797  recall@10=0.4395  mrr=0.3079  map=0.2185  mean_ms_per_query=2.02
-bm25_plus_sbert   recall@1=0.2696  recall@5=0.4211  recall@10=0.4906  mrr=0.3422  map=0.2424  mean_ms_per_query=10.24
-Phase-1 ceiling (duplicate within top 100): 0.6440; target Recall@5 0.8: NOT met
+Corpus embedded in 74.8s
+2389 queries, chronological: earlier reports only
+bm25_only         recall@1=0.2327  recall@5=0.3675  recall@10=0.4194  mrr=0.2979  map=0.2451  mean_ms_per_query=2.14
+bm25_plus_sbert   recall@1=0.2696  recall@5=0.4023  recall@10=0.4671  mrr=0.3336  map=0.2738  mean_ms_per_query=10.45
+Phase-1 ceiling (duplicate within top 100): 0.6074; target Recall@5 0.8: NOT met

@@ -48,7 +48,8 @@ class BM25Index:
     def __len__(self) -> int:
         return len(self.ids)
 
-    def top(self, text: str, k: int, exclude_id: int | None = None) -> list[tuple[int, float]]:
+    def top(self, text: str, k: int, exclude_id: int | None = None, allowed: np.ndarray | None = None) -> list[tuple[int, float]]:
+        """The k best-scoring reports; allowed (a boolean mask over the corpus) limits the candidates."""
         if self.matrix is None:
             return []
         terms = np.unique(self.vectorizer.transform([text]).indices)
@@ -57,6 +58,8 @@ class BM25Index:
         scores = np.asarray(self.matrix[:, terms].sum(axis=1)).ravel()
         if exclude_id is not None:
             scores[self.ids == exclude_id] = 0.0
+        if allowed is not None:
+            scores[~allowed] = 0.0
         k = min(k, int((scores > 0).sum()))
         if k == 0:
             return []

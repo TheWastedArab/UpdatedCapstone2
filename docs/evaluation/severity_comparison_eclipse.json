@@ -1,0 +1,520 @@
+{
+  "evaluated_at": "2026-11-24T10:25:02+00:00",
+  "dataset": "..\\data\\raw\\zenodo_eclipse",
+  "model_trained_at": "2026-11-19T15:39:02+00:00",
+  "split": "80/20 stratified, seed 42 (the test set of ml.train_severity)",
+  "test_reports": 39036,
+  "results": {
+    "majority_class_baseline": {
+      "accuracy": 0.7924,
+      "macro": {
+        "precision": 0.1981,
+        "recall": 0.25,
+        "f1": 0.221
+      },
+      "weighted": {
+        "precision": 0.6279,
+        "recall": 0.7924,
+        "f1": 0.7006
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.7924,
+          "recall": 1.0,
+          "f1": 0.8842,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            0,
+            2549,
+            0,
+            0
+          ],
+          [
+            0,
+            30931,
+            0,
+            0
+          ],
+          [
+            0,
+            3716,
+            0,
+            0
+          ],
+          [
+            0,
+            1840,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "svm": {
+      "accuracy": 0.7571,
+      "macro": {
+        "precision": 0.429,
+        "recall": 0.3827,
+        "f1": 0.3909
+      },
+      "weighted": {
+        "precision": 0.7184,
+        "recall": 0.7571,
+        "f1": 0.7318
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.3234,
+          "recall": 0.1581,
+          "f1": 0.2124,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.8289,
+          "recall": 0.9064,
+          "f1": 0.8659,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.2897,
+          "recall": 0.137,
+          "f1": 0.186,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.2741,
+          "recall": 0.3293,
+          "f1": 0.2992,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            403,
+            2071,
+            49,
+            26
+          ],
+          [
+            766,
+            28036,
+            985,
+            1144
+          ],
+          [
+            66,
+            2706,
+            509,
+            435
+          ],
+          [
+            11,
+            1009,
+            214,
+            606
+          ]
+        ]
+      }
+    },
+    "random_forest": {
+      "accuracy": 0.7949,
+      "macro": {
+        "precision": 0.7296,
+        "recall": 0.265,
+        "f1": 0.2512
+      },
+      "weighted": {
+        "precision": 0.7797,
+        "recall": 0.7949,
+        "f1": 0.7091
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.8197,
+          "recall": 0.0196,
+          "f1": 0.0383,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.7955,
+          "recall": 0.9983,
+          "f1": 0.8854,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.7164,
+          "recall": 0.0129,
+          "f1": 0.0254,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.587,
+          "recall": 0.0293,
+          "f1": 0.0559,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            50,
+            2497,
+            1,
+            1
+          ],
+          [
+            10,
+            30877,
+            17,
+            27
+          ],
+          [
+            1,
+            3657,
+            48,
+            10
+          ],
+          [
+            0,
+            1785,
+            1,
+            54
+          ]
+        ]
+      }
+    },
+    "naive_bayes": {
+      "accuracy": 0.6643,
+      "macro": {
+        "precision": 0.3447,
+        "recall": 0.3807,
+        "f1": 0.3498
+      },
+      "weighted": {
+        "precision": 0.7001,
+        "recall": 0.6643,
+        "f1": 0.679
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.177,
+          "recall": 0.1381,
+          "f1": 0.1551,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.8351,
+          "recall": 0.7786,
+          "f1": 0.8059,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.1979,
+          "recall": 0.2029,
+          "f1": 0.2004,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.1686,
+          "recall": 0.4033,
+          "f1": 0.2378,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            352,
+            1997,
+            123,
+            77
+          ],
+          [
+            1349,
+            24082,
+            2582,
+            2918
+          ],
+          [
+            221,
+            2077,
+            754,
+            664
+          ],
+          [
+            67,
+            680,
+            351,
+            742
+          ]
+        ]
+      }
+    },
+    "encoder": {
+      "accuracy": 0.7122,
+      "macro": {
+        "precision": 0.4155,
+        "recall": 0.4529,
+        "f1": 0.4291
+      },
+      "weighted": {
+        "precision": 0.7271,
+        "recall": 0.7122,
+        "f1": 0.7184
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.2875,
+          "recall": 0.3531,
+          "f1": 0.317,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.8474,
+          "recall": 0.8186,
+          "f1": 0.8327,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.2505,
+          "recall": 0.2161,
+          "f1": 0.232,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.2765,
+          "recall": 0.4239,
+          "f1": 0.3347,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            900,
+            1557,
+            68,
+            24
+          ],
+          [
+            2109,
+            25319,
+            2037,
+            1466
+          ],
+          [
+            108,
+            2254,
+            803,
+            551
+          ],
+          [
+            13,
+            749,
+            298,
+            780
+          ]
+        ]
+      }
+    },
+    "three_classifier_vote": {
+      "accuracy": 0.7685,
+      "macro": {
+        "precision": 0.443,
+        "recall": 0.3624,
+        "f1": 0.3653
+      },
+      "weighted": {
+        "precision": 0.7179,
+        "recall": 0.7685,
+        "f1": 0.7294
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.3666,
+          "recall": 0.0836,
+          "f1": 0.1361,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.8224,
+          "recall": 0.9311,
+          "f1": 0.8734,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.308,
+          "recall": 0.098,
+          "f1": 0.1486,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.2752,
+          "recall": 0.337,
+          "f1": 0.303,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            213,
+            2269,
+            38,
+            29
+          ],
+          [
+            323,
+            28801,
+            642,
+            1165
+          ],
+          [
+            38,
+            2875,
+            364,
+            439
+          ],
+          [
+            7,
+            1075,
+            138,
+            620
+          ]
+        ]
+      }
+    },
+    "deployed_combination": {
+      "accuracy": 0.7737,
+      "macro": {
+        "precision": 0.4906,
+        "recall": 0.4136,
+        "f1": 0.4296
+      },
+      "weighted": {
+        "precision": 0.7398,
+        "recall": 0.7737,
+        "f1": 0.7487
+      },
+      "per_class": {
+        "Low": {
+          "precision": 0.4562,
+          "recall": 0.1777,
+          "f1": 0.2558,
+          "support": 2549
+        },
+        "Medium": {
+          "precision": 0.8355,
+          "recall": 0.9177,
+          "f1": 0.8746,
+          "support": 30931
+        },
+        "High": {
+          "precision": 0.3412,
+          "recall": 0.1787,
+          "f1": 0.2345,
+          "support": 3716
+        },
+        "Critical": {
+          "precision": 0.3297,
+          "recall": 0.3804,
+          "f1": 0.3533,
+          "support": 1840
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "rows_true_cols_predicted": [
+          [
+            453,
+            2044,
+            34,
+            18
+          ],
+          [
+            526,
+            28384,
+            1036,
+            985
+          ],
+          [
+            12,
+            2620,
+            664,
+            420
+          ],
+          [
+            2,
+            926,
+            212,
+            700
+          ]
+        ]
+      }
+    }
+  }
+}

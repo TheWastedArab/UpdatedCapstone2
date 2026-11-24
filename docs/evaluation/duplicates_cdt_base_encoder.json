@@ -1,31 +1,32 @@
 {
-  "evaluated_at": "2026-11-17T04:29:15+00:00",
+  "evaluated_at": "2026-11-24T10:32:07+00:00",
   "dataset": "..\\data\\raw\\zenodo_eclipse\\CDT.csv",
   "corpus_size": 22371,
   "duplicates": 1881,
   "groups": 1275,
   "queries": 520,
   "holdout_fraction_of_groups": 0.3,
+  "protocol": "chronological: each query searches only reports created before it, and only those count as correct",
   "phase1_candidates": 100,
-  "phase1_ceiling": 0.7327,
+  "phase1_ceiling": 0.7231,
   "fusion_weight": 0.7,
   "sbert_model": "sentence-transformers/all-MiniLM-L6-v2",
   "results": {
     "bm25_only": {
-      "recall@1": 0.2846,
-      "recall@5": 0.4442,
-      "recall@10": 0.5154,
-      "mrr": 0.3639,
-      "map": 0.2952,
-      "mean_ms_per_query": 0.99
+      "recall@1": 0.2981,
+      "recall@5": 0.45,
+      "recall@10": 0.5115,
+      "mrr": 0.3732,
+      "map": 0.334,
+      "mean_ms_per_query": 1.0
     },
     "bm25_plus_sbert": {
-      "recall@1": 0.3038,
-      "recall@5": 0.5019,
-      "recall@10": 0.5712,
-      "mrr": 0.396,
-      "map": 0.3168,
-      "mean_ms_per_query": 8.8
+      "recall@1": 0.3308,
+      "recall@5": 0.5077,
+      "recall@10": 0.5731,
+      "mrr": 0.4139,
+      "map": 0.3694,
+      "mean_ms_per_query": 8.61
     }
   },
   "target_recall@5": 0.8,

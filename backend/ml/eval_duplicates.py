@@ -4,16 +4,25 @@
     python -m ml.eval_duplicates --data ../data/raw/gitbugs/firefox.csv --holdout 0.3 --model ../models/sbert-duplicates
     python -m ml.eval_duplicates --synthetic
 
-Each report that has an earlier duplicate is used as a query against the
-corpus of all other reports; a result is correct when it belongs to the same
-duplicate group. Reports Recall@1/5/10, Mean Reciprocal Rank and Mean Average
+Each report that has an earlier duplicate is used as a query. By default the
+evaluation is chronological, as the live check is: a query is searched only
+against reports created before it, and only those earlier members of its
+duplicate group count as correct answers. --include-later reproduces the
+first protocol, which searched every other report, including later ones. Reports Recall@1/5/10, Mean Reciprocal Rank and Mean Average
 Precision for BM25 alone and for BM25 followed by Sentence-BERT re-ranking,
 with the mean time per query. Text preparation, retrieval and score fusion are
 the functions the backend itself uses (app.ai.duplicates).
 
---holdout F evaluates only on the newest fraction F of duplicate groups. The
-fine-tuning script (ml.train_duplicates) trains on the remaining older groups,
-so a fine-tuned encoder is always tested on groups it has never seen.
+--holdout F evaluates only on the newest fraction F of duplicate groups (ordered by
+the id of the group's first report). The fine-tuning script (ml.train_duplicates)
+trains on the remaining older groups with the same split, so a fine-tuned encoder
+is always tested on groups it has never seen. When the encoder was fine-tuned on a
+larger collection than the one evaluated (the four Eclipse projects together,
+evaluated one project at a time), the newest groups of that collection and of one
+project are not the same; --fine-tuned-on PATH then also drops every held-out group
+that falls in the training part of PATH. Pass it for the base encoder too, so both
+are measured on the same queries. The BM25 statistics (document frequencies) are
+computed once over the whole corpus; they use no labels.
 """
 import argparse
 import json
@@ -67,6 +76,10 @@ def main() -> None:
     parser.add_argument("--fusion", type=float, default=settings.duplicate_fusion)
     parser.add_argument("--report", type=Path, default=ROOT / "docs" / "evaluation")
     parser.add_argument("--tag", default="", help="Suffix for the report file name, e.g. the dataset name")
+    parser.add_argument("--fine-tuned-on", type=Path,
+                        help="Data the encoder was fine-tuned on (same --holdout); its training groups are left out of the queries")
+    parser.add_argument("--include-later", action="store_true",
+                        help="Search every other report, including later ones (the first protocol); default: earlier reports only")
     args = parser.parse_args()
     if not args.synthetic and not args.data:
         parser.error("give --data PATH or --synthetic")
@@ -77,6 +90,12 @@ def main() -> None:
     for bug, root in roots.items():
         groups[root].update((bug, root))
     _, test_roots = split_groups(roots, args.holdout) if args.holdout else (set(), set(groups))
+    seen_in_training = 0
+    if args.fine_tuned_on:
+        trained_roots, _ = split_groups(datasets.duplicate_groups(datasets.load(args.fine_tuned_on)), args.holdout)
+        seen_in_training = len(test_roots & trained_roots)
+        test_roots -= trained_roots
+        print(f"{seen_in_training} held-out groups were in the fine-tuning data of {args.fine_tuned_on} and are left out")
     # A query is a report filed after its group's first report: the situation the live check faces.
     queries = sorted(bug for bug, root in roots.items() if bug != root and root in test_roots)
     rng = np.random.default_rng(42)
@@ -85,6 +104,17 @@ def main() -> None:
     ids = frame["bug_id"].tolist()
     titles, descriptions = frame["title"].tolist(), frame["description"].tolist()
     position = {bug: i for i, bug in enumerate(ids)}
+    # Time order: creation date where known, the bug id otherwise and to break ties.
+    created = frame["created"] if "created" in frame and frame["created"].notna().any() else None
+    if created is not None:
+        order = np.lexsort((frame["bug_id"].to_numpy(), created.fillna(created.min()).to_numpy()))
+    else:
+        order = np.argsort(frame["bug_id"].to_numpy(), kind="stable")
+    when = np.empty(len(ids), dtype=np.int64)
+    when[order] = np.arange(len(ids))
+    chronological = not args.include_later
+    if chronological:  # a query needs at least one group member filed before it
+        queries = [q for q in queries if any(when[position[m]] < when[position[q]] for m in groups[roots[q]] if m != q)]
     print(f"Corpus {len(ids)} reports, {sum(len(g) - 1 for g in groups.values())} duplicates in {len(groups)} groups, "
           f"{len(queries)} queries" + (f" from the newest {args.holdout:.0%} of groups" if args.holdout else ""))
     if not queries:
@@ -103,13 +133,15 @@ def main() -> None:
         vectors = np.asarray(embedder.model.encode(embed_texts, normalize_embeddings=True, batch_size=256, show_progress_bar=False), dtype=np.float32)
         print(f"Corpus embedded in {time.perf_counter() - started:.1f}s")
 
+    print(f"{len(queries)} queries, " + ("chronological: earlier reports only" if chronological else "searching all other reports"))
     relevant, bm25_rankings, two_phase_rankings = [], [], []
     bm25_ms, rerank_ms = [], []
     for bug in queries:
         here = position[bug]
-        relevant.append(groups[roots[bug]] - {bug})
+        earlier = when < when[here] if chronological else None
+        relevant.append({m for m in groups[roots[bug]] - {bug} if not chronological or earlier[position[m]]})
         started = time.perf_counter()
-        shortlist = index.top(index_texts[here], args.candidates, exclude_id=bug)
+        shortlist = index.top(index_texts[here], args.candidates, exclude_id=bug, allowed=earlier)
         bm25_ms.append((time.perf_counter() - started) * 1000)
         candidates = [i for i, _ in shortlist]
         bm25_rankings.append(candidates)
@@ -134,7 +166,11 @@ def main() -> None:
         "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataset": "synthetic (pipeline check only)" if args.synthetic else str(args.data),
         "corpus_size": len(ids), "duplicates": sum(len(g) - 1 for g in groups.values()), "groups": len(groups), "queries": len(queries),
-        "holdout_fraction_of_groups": args.holdout, "phase1_candidates": args.candidates, "phase1_ceiling": round(ceiling, 4),
+        "holdout_fraction_of_groups": args.holdout,
+        "fine_tuned_on": str(args.fine_tuned_on) if args.fine_tuned_on else None,
+        "held_out_groups_left_out_as_seen_in_fine_tuning": seen_in_training,
+        "protocol": "chronological: each query searches only reports created before it, and only those count as correct"
+                    if chronological else "all other reports searched, including later ones", "phase1_candidates": args.candidates, "phase1_ceiling": round(ceiling, 4),
         "fusion_weight": args.fusion, "sbert_model": str(args.model) if semantic else None, "results": results,
         "target_recall@5": TARGET_RECALL_AT_5, "target_met": final["recall@5"] >= TARGET_RECALL_AT_5,
     }

@@ -1,0 +1,33 @@
+{
+  "evaluated_at": "2026-11-17T04:17:29+00:00",
+  "dataset": "..\\data\\raw\\gitbugs\\thunderbird.csv",
+  "corpus_size": 15192,
+  "duplicates": 1975,
+  "groups": 992,
+  "queries": 619,
+  "holdout_fraction_of_groups": 0.3,
+  "phase1_candidates": 100,
+  "phase1_ceiling": 0.8368,
+  "fusion_weight": 0.7,
+  "sbert_model": "../models/sbert-duplicates",
+  "results": {
+    "bm25_only": {
+      "recall@1": 0.3457,
+      "recall@5": 0.5525,
+      "recall@10": 0.6123,
+      "mrr": 0.4409,
+      "map": 0.2921,
+      "mean_ms_per_query": 1.02
+    },
+    "bm25_plus_sbert": {
+      "recall@1": 0.441,
+      "recall@5": 0.6834,
+      "recall@10": 0.7641,
+      "mrr": 0.5485,
+      "map": 0.3733,
+      "mean_ms_per_query": 8.97
+    }
+  },
+  "target_recall@5": 0.8,
+  "target_met": false
+}
